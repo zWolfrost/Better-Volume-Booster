@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <link rel="stylesheet" href="popup.css">
+   </head>
+
+   <body>
+      <header>
+         <h1>Volume Booster Without Dementia</h1>
+      </header>
+
+      <div class="option">
+         <img src="../assets/trash-can-32.png" style="visibility: hidden;" width="16px"/>
+         <input type="number" id="global-volume-multiplier-counter" step="1"/>
+         <input type="range" id="global-volume-multiplier" name="global-volume-multiplier" min="0" max="500" step="1"/>
+         <label for="global-volume-multiplier">Global volume multiplier</label>
+      </div>
+      <div class="option">
+         <a id="delete-local-volume-multiplier"><img src="../assets/trash-can-32.png" class="trash-can" alt="Delete Local" width="16px"/></a>
+         <input type="number" id="local-volume-multiplier-counter" step="1"/>
+         <input type="range" id="local-volume-multiplier" name="local-volume-multiplier" min="0" max="500" step="5"/>
+         <label for="local-volume-multiplier">Domain-specific volume multiplier</label>
+      </div>
+
+      <script src="popup.js"></script>
+   </body>
+</html>

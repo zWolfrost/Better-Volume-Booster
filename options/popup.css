@@ -1,0 +1,94 @@
+html, body
+{
+   height: 100%;
+   display: flex;
+   flex-direction: column;
+}
+html
+{
+   font-family: sans-serif;
+   user-select: none;
+   background-color: #23222b;
+}
+body
+{
+   color: white;
+   /* accent-color: orange; */
+}
+
+
+
+header
+{
+   text-align: center;
+}
+
+
+
+.option
+{
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   padding: 5px;
+   padding-top: 5px;
+   padding-right: 8px;
+   margin: 10px;
+   border-radius: 5px;
+   background-color: #2a2933;
+   gap: 10px;
+}
+
+
+
+input[type="checkbox"]
+{
+   cursor: pointer;
+}
+
+input[type="number"]
+{
+   width: 75px;
+   text-align: center;
+   appearance: textfield;
+   font-weight: bold;
+}
+
+input[type="range"]
+{
+   cursor: pointer;
+}
+input[type="range"].gray
+{
+   filter: grayscale(100%);
+   opacity: 0.5;
+}
+
+
+
+img.trash-can
+{
+   position: relative;
+   width: 16px;
+   height: 16px;
+   cursor: pointer;
+   filter: invert(12%) sepia(95%) saturate(7171%) hue-rotate(3deg) brightness(108%) contrast(113%);
+   left: 3px;
+   top: 2px;
+}
+img.trash-can.gray
+{
+   pointer-events: none;
+   filter: grayscale(100%);
+   opacity: 0.5;
+}
+
+
+
+footer
+{
+   margin-top: auto;
+   padding-top: 5px;
+   padding-bottom: 5px;
+   text-align: center;
+}
