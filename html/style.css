@@ -4,16 +4,12 @@ html, body
    display: flex;
    flex-direction: column;
 }
-html
+body
 {
    font-family: sans-serif;
    user-select: none;
    background-color: #23222b;
-}
-body
-{
    color: white;
-   /* accent-color: orange; */
 }
 
 
@@ -33,7 +29,7 @@ header
    padding: 5px;
    padding-top: 5px;
    padding-right: 8px;
-   margin: 10px;
+   margin: 5px;
    border-radius: 5px;
    background-color: #2a2933;
    gap: 10px;
@@ -52,6 +48,11 @@ input[type="number"]
    text-align: center;
    appearance: textfield;
    font-weight: bold;
+
+   background-color: #35333f;
+   color: white;
+   border: none;
+   border-radius: 5px;
 }
 
 input[type="range"]
@@ -62,6 +63,17 @@ input[type="range"].gray
 {
    filter: grayscale(100%);
    opacity: 0.5;
+}
+
+
+
+.url
+{
+   font-weight: bold;
+}
+.hidden
+{
+   display: none;
 }
 
 
@@ -79,8 +91,7 @@ img.trash-can
 img.trash-can.gray
 {
    pointer-events: none;
-   filter: grayscale(100%);
-   opacity: 0.5;
+   filter: invert(26%) sepia(6%) saturate(444%) hue-rotate(202deg) brightness(94%) contrast(85%);
 }
 
 

@@ -11,6 +11,7 @@ window.boosterGainNode = gainNode;
 
 // SETTING MUTATION OBSERVER TO WATCH FOR MEDIA ELEMENTS AND FINDING THEM IF THEY ALREADY EXIST
 const TAGS_TO_WATCH = ["video", "audio"];
+const TAGS_TO_WATCH_SELECTOR = TAGS_TO_WATCH.join(",");
 
 new MutationObserver(records =>
 {
@@ -18,15 +19,26 @@ new MutationObserver(records =>
    {
       for (let node of mutation.addedNodes)
       {
-         const tagName = node.tagName?.toLowerCase();
-
-         if (TAGS_TO_WATCH.includes(tagName))
+         if (node.nodeType == Node.ELEMENT_NODE)
          {
-            onMediaElementCreation(node);
+            let nodeList = [];
+            if (node.matches(TAGS_TO_WATCH_SELECTOR)) nodeList.push(node);
+            if (node.hasChildNodes()) nodeList.push(...node.querySelectorAll(TAGS_TO_WATCH_SELECTOR));
+
+            for (let el of nodeList)
+            {
+               console.log(node)
+               onMediaElementCreation(el);
+            }
          }
       }
    }
 }).observe(document, {subtree: true, childList: true});
+
+for (let node of document.querySelectorAll(TAGS_TO_WATCH_SELECTOR))
+{
+   onMediaElementCreation(node);
+}
 
 
 
@@ -50,6 +62,13 @@ browser.storage.onChanged.addListener(updateVolume)
 // ADDING MEDIA ELEMENTS TO THE AUDIO CONTEXT
 function onMediaElementCreation(el)
 {
-   console.log(el)
-   audioCtx.createMediaElementSource(el).connect(gainNode);
+   const boostClass = `_volume-boosted`;
+
+   if (el.classList.contains(boostClass) == false)
+   {
+      /* console.log(el) */
+      el.classList.add(boostClass);
+      el.crossOrigin = "anonymous";
+      audioCtx.createMediaElementSource(el).connect(gainNode);
+   }
 }
