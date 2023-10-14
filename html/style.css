@@ -1,5 +1,6 @@
 html, body
 {
+   margin: 0;
    height: 100%;
    display: flex;
    flex-direction: column;
@@ -19,6 +20,12 @@ header
    text-align: center;
 }
 
+
+
+.container
+{
+   margin: 4px;
+}
 
 
 .option
@@ -57,6 +64,7 @@ input[type="number"]
 
 input[type="range"]
 {
+   flex: 1 0 auto;
    cursor: pointer;
 }
 input[type="range"].gray
@@ -67,6 +75,12 @@ input[type="range"].gray
 
 
 
+.percent-sign
+{
+   position: relative;
+   right: 2px;
+   font-weight: bold;
+}
 .url
 {
    font-weight: bold;
@@ -92,6 +106,11 @@ img.trash-can.gray
 {
    pointer-events: none;
    filter: invert(26%) sepia(6%) saturate(444%) hue-rotate(202deg) brightness(94%) contrast(85%);
+}
+
+img.fake-trash-can
+{
+   visibility: hidden;
 }
 
 

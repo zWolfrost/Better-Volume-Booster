@@ -43,7 +43,7 @@ for (let node of document.querySelectorAll(TAGS_TO_WATCH_SELECTOR))
 
 
 // SETTING UP STORAGE LISTENER TO UPDATE VOLUME
-const exponentialMultiplier = 1.3;
+const exponentialMultiplier = 1;
 
 function updateVolume()
 {

@@ -91,6 +91,8 @@ function onPopupOpen(url)
       DOMAIN_TEXT.innerText = domain;
       DOMAIN_TEXT.classList.add("url");
 
+      GLOBAL_VOLUME_MULTIPLIER.style.maxWidth = LOCAL_VOLUME_MULTIPLIER.offsetWidth + "px";
+
       [LOCAL_VOLUME_MULTIPLIER, LOCAL_VOLUME_MULTIPLIER_COUNTER].forEach(node =>
       {
          setStorageOnInput(node, target =>
@@ -118,6 +120,7 @@ function onPopupOpen(url)
    else
    {
       LOCAL_VOLUME_MULTIPLIER.parentElement.classList.add("hidden");
+      document.getElementsByClassName("fake-trash-can")[0].classList.add("hidden");
    }
 }
 

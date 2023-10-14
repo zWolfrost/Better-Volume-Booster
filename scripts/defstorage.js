@@ -11,7 +11,11 @@ const DEFAULT_STORAGE =
 
 browser.storage.local.get().then(storage =>
 {
-   if (!storage.default)
+   if (storage.default)
+   {
+      browser.storage.local.set(storage)
+   }
+   else
    {
       browser.storage.local.set({...DEFAULT_STORAGE, default: true})
    }

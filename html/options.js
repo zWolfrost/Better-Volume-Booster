@@ -1,7 +1,7 @@
 "use strict"
 
 const DEF_VOLUME_MULTIPLIER_LIMIT = 500;
-const MIN_VOLUME_MULTIPLIER_LIMIT = 200;
+const MIN_VOLUME_MULTIPLIER_LIMIT = 100;
 const MAX_VOLUME_MULTIPLIER_LIMIT = 1000;
 
 const VOLUME_MULTIPLIER_LIMIT = document.getElementById("volume-multiplier-limit");
