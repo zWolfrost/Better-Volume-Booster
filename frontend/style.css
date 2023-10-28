@@ -8,6 +8,7 @@ html, body
 body
 {
    font-family: sans-serif;
+   font-size: 16px;
    user-select: none;
    background-color: #23222b;
    color: white;
@@ -83,7 +84,18 @@ input[type="range"].gray
 }
 .url
 {
+   display: inline-block;
+
+   font-family: monospace;
    font-weight: bold;
+
+   text-overflow: ellipsis;
+   overflow: hidden;
+   white-space: nowrap;
+
+   vertical-align: bottom;
+
+   max-width: 300px; /* 330 / 460 */
 }
 .hidden
 {

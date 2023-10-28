@@ -12,6 +12,6 @@
       ]
    },
    "condition": {
-      "resourceTypes": ["media"]
+      "resourceTypes": ["media", "main_frame", "sub_frame"]
    }
 }]

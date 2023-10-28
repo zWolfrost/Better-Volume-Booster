@@ -81,7 +81,7 @@ function onPopupOpen(url)
             LOCAL_VOLUME_MULTIPLIER_COUNTER.value = target.value
          }
 
-         return { global: {volumeMultiplierPercent: target.value} }
+         return { global: {volumeMultiplierPercent: +target.value} }
       })
    });
 
@@ -108,13 +108,13 @@ function onPopupOpen(url)
                DELETE_LOCAL_VOLUME_MULTIPLIER_ICON.classList.remove("gray")
             }
 
-            return { [domain]: {volumeMultiplierPercent: target.value} }
+            return { [domain]: {volumeMultiplierPercent: +target.value} }
          })
       })
 
       DELETE_LOCAL_VOLUME_MULTIPLIER_BUTTON.addEventListener("click", () =>
       {
-         browser.storage.local.set({ [domain]: undefined }).then(() => updateInputs(domain))
+         browser.storage.local.remove(domain).then(() => updateInputs(domain))
       })
    }
    else

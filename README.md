@@ -1,9 +1,11 @@
 # Volume Booster Without Dementia
-Have you ever had that issue where a volume booster extension would just forget what volume did you set it to on a page? No? Well, I have. And it's annoying. So I made this extension to fix that problem.
+Have you ever had that issue where a volume booster add-on would just forget what volume did you set it to on a page? No? Well, I have, and it's quite frustrating. That's why I created this add-on.
 
-It's a simple extension that allows you to boost the volume (max. 1000%) of any page and will (thankfully) remember the volume you set it to. It has two sliders: a global one and a per-domain one. You can delete the per-domain volume by clicking the trash can icon next to the slider. In that case, this extension will use the global slider.
+It's a simple open-source add-on that allows you to boost the volume (max. 1000%) of any page and will (thankfully) remember the volume you set it to. It has two sliders: a global one and a per-domain one. You can delete the per-domain volume by clicking the trash can icon next to the slider. In that case, the global one will be used.
 
-Its only (known) limitation is that it can't boost the volume of videos that are embedded in iframes. No extension can do that. If you want to boost the volume of a video that's embedded in an iframe, you'll have to open the embed video in a tab of its own.
+Its only (known) limitation is that it can't boost the volume of media elements with a non-existent html tag (e.g. music played using javascript).
+
+**DISCLAIMER**: I am not responsible for any damage to your ears or headphones that may result from the add-on use. Use the add-on responsibly and ensure your headphones can handle the boosted volume levels.
 
 &nbsp;
 ## Changelog
@@ -17,3 +19,7 @@ Its only (known) limitation is that it can't boost the volume of videos that are
 - **v1.2.0**:
 <br>- Made the volume slider wider and clearer.
 <br>- Fixed bug where the limit would reset when refreshing the extension (by closing the browser).
+
+- **v1.3.0**:
+<br>- Added support for media elements in iframes (not entirely tested).
+<br>- Fixed bug where long domain names would overflow the slider.
