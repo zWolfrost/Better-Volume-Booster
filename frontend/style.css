@@ -104,23 +104,46 @@ input[type="range"].gray
 
 
 
-img.trash-can
+a.note > img
 {
    position: relative;
-   width: 16px;
-   height: 16px;
    cursor: pointer;
-   filter: invert(12%) sepia(95%) saturate(7171%) hue-rotate(3deg) brightness(108%) contrast(113%);
+   left: 4px;
+   top: 2px;
+   margin-right: 8px;
+
+   filter: invert(85%);
+}
+a.quaver > img
+{
+   content: url("../assets/quaver-32.png");
+}
+a.beam > img
+{
+   content: url("../assets/beam-32.png");
+}
+a.note.gray > img
+{
+   filter: invert(26%) sepia(6%) saturate(444%) hue-rotate(202deg) brightness(94%) contrast(85%);
+}
+
+
+a.trash-can > img
+{
+   position: relative;
+   cursor: pointer;
    left: 3px;
    top: 2px;
+
+   filter: invert(9%) sepia(83%) saturate(7456%) hue-rotate(14deg) brightness(95%) contrast(95%);
 }
-img.trash-can.gray
+a.trash-can.gray > img
 {
    pointer-events: none;
    filter: invert(26%) sepia(6%) saturate(444%) hue-rotate(202deg) brightness(94%) contrast(85%);
 }
 
-img.fake-trash-can
+a.fake
 {
    visibility: hidden;
 }
@@ -133,4 +156,10 @@ footer
    padding-top: 5px;
    padding-bottom: 5px;
    text-align: center;
+
+   font-size: 15px;
+}
+footer > a
+{
+   color: white;
 }

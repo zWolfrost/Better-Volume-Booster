@@ -4,52 +4,31 @@ const DEF_VOLUME_MULTIPLIER_LIMIT = 500;
 const MIN_VOLUME_MULTIPLIER_LIMIT = 100;
 const MAX_VOLUME_MULTIPLIER_LIMIT = 1000;
 
-const VOLUME_MULTIPLIER_LIMIT = document.getElementById("volume-multiplier-limit");
+const VOLUME_MULTIPLIER_LIMIT_RANGE = document.getElementById("volume-multiplier-limit-range");
 const VOLUME_MULTIPLIER_LIMIT_COUNTER = document.getElementById("volume-multiplier-limit-counter");
 
+
+function setVolumeOptions()
+{
+   browser.storage.local.set({
+      options: {
+         volumeMultiplierPercentLimit: +volumeMultiplierLimit.inputs[0].value
+      }
+   })
+}
+
+const volumeMultiplierLimit = new VolumeOptions([VOLUME_MULTIPLIER_LIMIT_COUNTER, VOLUME_MULTIPLIER_LIMIT_RANGE], setVolumeOptions)
 
 
 function updateInputs()
 {
    browser.storage.local.get().then(storage =>
    {
-      VOLUME_MULTIPLIER_LIMIT.min = MIN_VOLUME_MULTIPLIER_LIMIT
-      VOLUME_MULTIPLIER_LIMIT.max = MAX_VOLUME_MULTIPLIER_LIMIT
+      volumeMultiplierLimit.forEachInput(input => input.min = MIN_VOLUME_MULTIPLIER_LIMIT)
+      volumeMultiplierLimit.forEachInput(input => input.max = MAX_VOLUME_MULTIPLIER_LIMIT)
 
-      VOLUME_MULTIPLIER_LIMIT.value = storage.options.volumeMultiplierPercentLimit
-      VOLUME_MULTIPLIER_LIMIT_COUNTER.value = storage.options.volumeMultiplierPercentLimit
+      volumeMultiplierLimit.forEachInput(input => input.value = storage.options.volumeMultiplierPercentLimit)
    })
 }
-
-function setStorageOnInput(node, callback)
-{
-   node.addEventListener("input", e => browser.storage.local.set(callback(e.target)) )
-}
-
-function parseVolume(volume, min, max)
-{
-   let parsed = parseInt(volume)
-
-   if (isNaN(parsed) || parsed < min) return min
-   else if (parsed > max) return max
-
-   return parsed
-}
-
-
 
 updateInputs();
-
-
-[VOLUME_MULTIPLIER_LIMIT, VOLUME_MULTIPLIER_LIMIT_COUNTER].forEach(node =>
-{
-   setStorageOnInput(node, target =>
-   {
-      target.value = parseVolume(target.value, MIN_VOLUME_MULTIPLIER_LIMIT, MAX_VOLUME_MULTIPLIER_LIMIT)
-
-      VOLUME_MULTIPLIER_LIMIT.value = target.value
-      VOLUME_MULTIPLIER_LIMIT_COUNTER.value = target.value
-
-      return { options: {volumeMultiplierPercentLimit: target.value} }
-   })
-});

@@ -1,89 +1,130 @@
 "use strict"
 
-const MIN_VOLUME_MULTIPLIER = 0;
-
 const DOMAIN_TEXT = document.getElementById("domain-text");
-const GLOBAL_VOLUME_MULTIPLIER = document.getElementById("global-volume-multiplier");
+const GLOBAL_VOLUME_MULTIPLIER_RANGE = document.getElementById("global-volume-multiplier-range");
 const GLOBAL_VOLUME_MULTIPLIER_COUNTER = document.getElementById("global-volume-multiplier-counter");
-const LOCAL_VOLUME_MULTIPLIER = document.getElementById("local-volume-multiplier");
+const LOCAL_VOLUME_MULTIPLIER_RANGE = document.getElementById("local-volume-multiplier-range");
 const LOCAL_VOLUME_MULTIPLIER_COUNTER = document.getElementById("local-volume-multiplier-counter");
-const DELETE_LOCAL_VOLUME_MULTIPLIER_BUTTON = document.getElementById("delete-local-volume-multiplier");
-const DELETE_LOCAL_VOLUME_MULTIPLIER_ICON = document.querySelector("#delete-local-volume-multiplier > img");
+const FLIP_GLOBAL_SOUND_MODE = document.getElementById("flip-global-sound-mode");
+const FLIP_LOCAL_SOUND_MODE = document.getElementById("flip-local-sound-mode");
+const DELETE_LOCAL_VOLUME_OPTIONS = document.getElementById("delete-local-volume-multiplier");
 
 
-
-function getURL()
+class NoteFlipper
 {
-   return new Promise((resolve, reject) =>
-      chrome.tabs.query({active: true, currentWindow: true}, tabs => resolve(tabs[0]?.url))
-   );
-}
-
-function updateInputs(domain)
-{
-   browser.storage.local.get().then(storage =>
+   constructor(button, callback)
    {
-      GLOBAL_VOLUME_MULTIPLIER.max = storage.options.volumeMultiplierPercentLimit
-      LOCAL_VOLUME_MULTIPLIER.max = storage.options.volumeMultiplierPercentLimit
+      this.button = button;
 
-      GLOBAL_VOLUME_MULTIPLIER.value = storage.global.volumeMultiplierPercent
-      GLOBAL_VOLUME_MULTIPLIER_COUNTER.value = storage.global.volumeMultiplierPercent
-
-      if (domain && storage[domain])
+      this.button.addEventListener("click", () =>
       {
-         LOCAL_VOLUME_MULTIPLIER.value = storage[domain].volumeMultiplierPercent
-         LOCAL_VOLUME_MULTIPLIER_COUNTER.value = storage[domain].volumeMultiplierPercent
-      }
-      else
-      {
-         LOCAL_VOLUME_MULTIPLIER.value = storage.global.volumeMultiplierPercent
-         LOCAL_VOLUME_MULTIPLIER_COUNTER.value = storage.global.volumeMultiplierPercent
-         LOCAL_VOLUME_MULTIPLIER.classList.add("gray")
-         DELETE_LOCAL_VOLUME_MULTIPLIER_ICON.classList.add("gray")
-      }
-   })
-}
+         this.isMono = !this.isMono
 
-function setStorageOnInput(node, callback)
-{
-   node.addEventListener("input", e => browser.storage.local.set(callback(e.target)) )
-}
-
-function parseVolume(volume, min, max)
-{
-   let parsed = parseInt(volume)
-
-   if (isNaN(parsed) || parsed < min) return min
-   else if (parsed > max) return max
-
-   return parsed
-}
-
-function onPopupOpen(url)
-{
-   const domain = url ? new URL(url)?.hostname : url;
-
-   updateInputs(domain);
-
-
-   [GLOBAL_VOLUME_MULTIPLIER, GLOBAL_VOLUME_MULTIPLIER_COUNTER].forEach(node =>
-   {
-      setStorageOnInput(node, target =>
-      {
-         target.value = parseVolume(target.value, GLOBAL_VOLUME_MULTIPLIER.min, GLOBAL_VOLUME_MULTIPLIER.max)
-
-         GLOBAL_VOLUME_MULTIPLIER.value = target.value
-         GLOBAL_VOLUME_MULTIPLIER_COUNTER.value = target.value
-
-         if (LOCAL_VOLUME_MULTIPLIER.classList.contains("gray"))
-         {
-            LOCAL_VOLUME_MULTIPLIER.value = target.value
-            LOCAL_VOLUME_MULTIPLIER_COUNTER.value = target.value
-         }
-
-         return { global: {volumeMultiplierPercent: +target.value} }
+         callback(this.isMono)
       })
-   });
+   }
+
+   get isMono()
+   {
+      return this.button.classList.contains("quaver")
+   }
+   set isMono(mono)
+   {
+      this.button.classList.remove("quaver", "beam")
+      this.button.classList.add(mono ? "quaver" : "beam")
+   }
+}
+
+
+(async () =>
+{
+   function getURL()
+   {
+      return new Promise((resolve, reject) =>
+         chrome.tabs.query({active: true, currentWindow: true}, tabs => resolve(tabs[0]?.url))
+      );
+   }
+
+   function updateInputs()
+   {
+      browser.storage.local.get().then(storage =>
+      {
+         const localIsAvailable = domain && storage[domain];
+         const domainGlobalFallback = localIsAvailable ? domain : "global";
+
+         globalVolumeOptions.forEachInput(input => input.max = storage.options.volumeMultiplierPercentLimit)
+         localVolumeOptions.forEachInput(input => input.max = storage.options.volumeMultiplierPercentLimit)
+
+         globalVolumeOptions.forEachInput(input => input.value = storage.global.volumeMultiplierPercent)
+         localVolumeOptions.forEachInput(input => input.value = storage[domainGlobalFallback].volumeMultiplierPercent)
+
+         globalMonoNoteFlipper.isMono = storage.global.mono
+         localMonoNoteFlipper.isMono = storage[domainGlobalFallback].mono
+
+         localVolumeOptions.enabled = localIsAvailable
+      })
+   }
+
+   function setGlobalVolumeOptions()
+   {
+      browser.storage.local.set({
+         global: {
+            volumeMultiplierPercent: +globalVolumeOptions.inputs[0].value,
+            mono: globalMonoNoteFlipper.isMono
+         },
+      })
+   }
+   function setLocalVolumeOptions()
+   {
+      browser.storage.local.set({
+         [domain]: {
+            volumeMultiplierPercent: +localVolumeOptions.inputs[0].value,
+            mono: localMonoNoteFlipper.isMono
+         },
+      })
+   }
+
+
+   const url = await getURL();
+   const domain = url ? new URL(url)?.hostname : url
+
+
+   const localVolumeOptions = new VolumeOptions([LOCAL_VOLUME_MULTIPLIER_COUNTER, LOCAL_VOLUME_MULTIPLIER_RANGE], value =>
+   {
+      localVolumeOptions.enabled = true
+
+      setLocalVolumeOptions()
+   }, {links: [FLIP_LOCAL_SOUND_MODE, DELETE_LOCAL_VOLUME_OPTIONS]})
+
+   const globalVolumeOptions = new VolumeOptions([GLOBAL_VOLUME_MULTIPLIER_COUNTER, GLOBAL_VOLUME_MULTIPLIER_RANGE], value =>
+   {
+      if (!localVolumeOptions.enabled)
+      {
+         localVolumeOptions.forEachInput(input => input.value = value)
+      }
+
+      setGlobalVolumeOptions()
+   }, {links: [FLIP_GLOBAL_SOUND_MODE]})
+
+
+
+   const localMonoNoteFlipper = new NoteFlipper(FLIP_LOCAL_SOUND_MODE, () =>
+   {
+      localVolumeOptions.enabled = true
+
+      setLocalVolumeOptions()
+   })
+
+   const globalMonoNoteFlipper = new NoteFlipper(FLIP_GLOBAL_SOUND_MODE, isMono =>
+   {
+      if (!localVolumeOptions.enabled)
+      {
+         localMonoNoteFlipper.isMono = isMono
+      }
+
+      setGlobalVolumeOptions()
+   })
+
 
 
    if (domain)
@@ -91,39 +132,25 @@ function onPopupOpen(url)
       DOMAIN_TEXT.innerText = domain;
       DOMAIN_TEXT.classList.add("url");
 
-      GLOBAL_VOLUME_MULTIPLIER.style.maxWidth = LOCAL_VOLUME_MULTIPLIER.offsetWidth + "px";
+      GLOBAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = LOCAL_VOLUME_MULTIPLIER_RANGE.offsetWidth + "px";
 
-      [LOCAL_VOLUME_MULTIPLIER, LOCAL_VOLUME_MULTIPLIER_COUNTER].forEach(node =>
+
+      DELETE_LOCAL_VOLUME_OPTIONS.addEventListener("click", () =>
       {
-         setStorageOnInput(node, target =>
-         {
-            target.value = parseVolume(target.value, LOCAL_VOLUME_MULTIPLIER.min, LOCAL_VOLUME_MULTIPLIER.max)
+         localVolumeOptions.enabled = false
+         localVolumeOptions.forEachInput(input => input.value = globalVolumeOptions.inputs[0].value)
 
-            LOCAL_VOLUME_MULTIPLIER.value = target.value
-            LOCAL_VOLUME_MULTIPLIER_COUNTER.value = target.value
+         localMonoNoteFlipper.isMono = globalMonoNoteFlipper.isMono
 
-            if (LOCAL_VOLUME_MULTIPLIER.classList.contains("gray"))
-            {
-               LOCAL_VOLUME_MULTIPLIER.classList.remove("gray")
-               DELETE_LOCAL_VOLUME_MULTIPLIER_ICON.classList.remove("gray")
-            }
-
-            return { [domain]: {volumeMultiplierPercent: +target.value} }
-         })
-      })
-
-      DELETE_LOCAL_VOLUME_MULTIPLIER_BUTTON.addEventListener("click", () =>
-      {
-         browser.storage.local.remove(domain).then(() => updateInputs(domain))
+         browser.storage.local.remove(domain)
       })
    }
    else
    {
-      LOCAL_VOLUME_MULTIPLIER.parentElement.classList.add("hidden");
-      document.getElementsByClassName("fake-trash-can")[0].classList.add("hidden");
+      LOCAL_VOLUME_MULTIPLIER_RANGE.parentElement.classList.add("hidden");
+      document.querySelectorAll(".fake").forEach(node => node.classList.add("hidden"))
    }
-}
 
 
-
-getURL().then(url => onPopupOpen(url));
+   updateInputs();
+})()

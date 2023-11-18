@@ -3,6 +3,7 @@
    <head>
       <meta charset="UTF-8">
       <link rel="stylesheet" href="style.css">
+      <script src="volumeoptions.js"></script>
       <script defer src="popup.js"></script>
       <style>
          body { min-width: 800px; }
@@ -12,22 +13,26 @@
    <body>
       <div class="container">
          <div class="option">
-            <img src="../assets/trash-can-32.png" class="fake-trash-can" width="16px"/>
+            <a class="fake"><img src="../assets/trashcan-32.png" width="16px"/></a>
+            <a id="flip-global-sound-mode" class="note beam"><img alt="Flip Global Sound Mode" width="16px"/></a>
 
             <input type="number" id="global-volume-multiplier-counter" min="0" step="1"/>
             <span class="percent-sign">%</span>
 
-            <input type="range" id="global-volume-multiplier" name="global-volume-multiplier" min="0" step="5"/>
-            <label for="global-volume-multiplier">Global volume multiplier</label>
+            <input type="range" id="global-volume-multiplier-range" name="global-volume-multiplier-range" min="0" step="5"/>
+
+            <label for="global-volume-multiplier-range">Global volume</label>
          </div>
          <div class="option">
-            <a id="delete-local-volume-multiplier"><img src="../assets/trash-can-32.png" class="trash-can" alt="Delete Local" width="16px"/></a>
+            <a id="delete-local-volume-multiplier" class="trash-can"><img src="../assets/trashcan-32.png" alt="Delete Volume Multiplier" width="16px"/></a>
+            <a id="flip-local-sound-mode" class="note beam"><img alt="Flip Local Sound Mode" width="16px"/></a>
 
             <input type="number" id="local-volume-multiplier-counter" min="0" step="1"/>
             <span class="percent-sign">%</span>
 
-            <input type="range" id="local-volume-multiplier" name="local-volume-multiplier" min="0" step="5"/>
-            <label for="local-volume-multiplier"><label id="domain-text">Local</label> volume multiplier</label>
+            <input type="range" id="local-volume-multiplier-range" name="local-volume-multiplier-range" min="0" step="5"/>
+
+            <label for="local-volume-multiplier-range"><label id="domain-text">Local</label> volume</label>
          </div>
       </div>
    </body>
