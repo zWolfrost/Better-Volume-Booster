@@ -1,7 +1,7 @@
 {
    "manifest_version": 3,
-   "name": "Volume Booster Without Dementia",
-   "version": "1.4.0",
+   "name": "Better Volume Booster",
+   "version": "1.5.0",
 
    "description": "Volume booster firefox extension that remembers your choices.",
 
@@ -22,7 +22,7 @@
 
 
    "background": {
-      "scripts": ["scripts/defstorage.js"]
+      "scripts": ["scripts/defaultstorage.js"]
    },
 
    "host_permissions": [

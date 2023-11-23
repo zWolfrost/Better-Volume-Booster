@@ -18,33 +18,45 @@ class NoteFlipper
 
       this.button.addEventListener("click", () =>
       {
-         this.isMono = !this.isMono
+         this.isMono = !this.isMono;
 
-         callback(this.isMono)
+         callback(this.isMono);
       })
    }
 
    get isMono()
    {
-      return this.button.classList.contains("quaver")
+      return this.button.classList.contains("quaver");
    }
    set isMono(mono)
    {
-      this.button.classList.remove("quaver", "beam")
-      this.button.classList.add(mono ? "quaver" : "beam")
+      this.button.classList.remove("quaver", "beam");
+      this.button.classList.add(mono ? "quaver" : "beam");
    }
+}
+
+function getURL()
+{
+   return new Promise((resolve, reject) =>
+      chrome.tabs.query({active: true, currentWindow: true}, tabs => resolve(tabs[0]?.url))
+   );
+}
+
+
+function hideLocalOptions()
+{
+   LOCAL_VOLUME_MULTIPLIER_RANGE.parentElement.classList.add("hidden");
+   document.querySelectorAll(".fake").forEach(node => node.classList.add("hidden"))
+}
+function syncRangesWidths()
+{
+   const minVolumeMultiplierRangeWidth = Math.min(LOCAL_VOLUME_MULTIPLIER_RANGE.offsetWidth, GLOBAL_VOLUME_MULTIPLIER_RANGE.offsetWidth);
+   LOCAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = GLOBAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = minVolumeMultiplierRangeWidth + "px";
 }
 
 
 (async () =>
 {
-   function getURL()
-   {
-      return new Promise((resolve, reject) =>
-         chrome.tabs.query({active: true, currentWindow: true}, tabs => resolve(tabs[0]?.url))
-      );
-   }
-
    function updateInputs()
    {
       browser.storage.local.get().then(storage =>
@@ -52,16 +64,35 @@ class NoteFlipper
          const localIsAvailable = domain && storage[domain];
          const domainGlobalFallback = localIsAvailable ? domain : "global";
 
-         globalVolumeOptions.forEachInput(input => input.max = storage.options.volumeMultiplierPercentLimit)
-         localVolumeOptions.forEachInput(input => input.max = storage.options.volumeMultiplierPercentLimit)
+         globalVolumeOptions.enabled = !localIsAvailable;
+         localVolumeOptions.enabled = localIsAvailable;
 
-         globalVolumeOptions.forEachInput(input => input.value = storage.global.volumeMultiplierPercent)
-         localVolumeOptions.forEachInput(input => input.value = storage[domainGlobalFallback].volumeMultiplierPercent)
+         globalMonoNoteFlipper.isMono = storage.global.mono;
+         localMonoNoteFlipper.isMono = storage[domainGlobalFallback].mono;
 
-         globalMonoNoteFlipper.isMono = storage.global.mono
-         localMonoNoteFlipper.isMono = storage[domainGlobalFallback].mono
+         globalVolumeOptions.forEachInput(input =>
+         {
+            input.max = storage.options.volumeMultiplierPercentLimit;
+            input.value = storage.global.volumeMultiplierPercent;
+         })
 
-         localVolumeOptions.enabled = localIsAvailable
+         localVolumeOptions.forEachInput(input =>
+         {
+            input.max = storage.options.volumeMultiplierPercentLimit;
+            input.value = storage[domainGlobalFallback].volumeMultiplierPercent;
+         })
+
+         if (domain && !storage.options.hideLocalVolumeMultiplier)
+         {
+            DOMAIN_TEXT.innerText = domain;
+            DOMAIN_TEXT.classList.add("url");
+
+            syncRangesWidths();
+         }
+         else
+         {
+            hideLocalOptions();
+         }
       })
    }
 
@@ -91,65 +122,55 @@ class NoteFlipper
 
    const localVolumeOptions = new VolumeOptions([LOCAL_VOLUME_MULTIPLIER_COUNTER, LOCAL_VOLUME_MULTIPLIER_RANGE], value =>
    {
-      localVolumeOptions.enabled = true
+      localVolumeOptions.enabled = true;
+      globalVolumeOptions.enabled = false;
 
-      setLocalVolumeOptions()
+      setLocalVolumeOptions();
    }, {links: [FLIP_LOCAL_SOUND_MODE, DELETE_LOCAL_VOLUME_OPTIONS]})
 
    const globalVolumeOptions = new VolumeOptions([GLOBAL_VOLUME_MULTIPLIER_COUNTER, GLOBAL_VOLUME_MULTIPLIER_RANGE], value =>
    {
       if (!localVolumeOptions.enabled)
       {
-         localVolumeOptions.forEachInput(input => input.value = value)
+         localVolumeOptions.forEachInput(input => input.value = value);
       }
 
-      setGlobalVolumeOptions()
+      setGlobalVolumeOptions();
    }, {links: [FLIP_GLOBAL_SOUND_MODE]})
 
 
 
    const localMonoNoteFlipper = new NoteFlipper(FLIP_LOCAL_SOUND_MODE, () =>
    {
-      localVolumeOptions.enabled = true
+      localVolumeOptions.enabled = true;
+      globalVolumeOptions.enabled = false;
 
-      setLocalVolumeOptions()
+      setLocalVolumeOptions();
    })
 
    const globalMonoNoteFlipper = new NoteFlipper(FLIP_GLOBAL_SOUND_MODE, isMono =>
    {
       if (!localVolumeOptions.enabled)
       {
-         localMonoNoteFlipper.isMono = isMono
+         localMonoNoteFlipper.isMono = isMono;
       }
 
-      setGlobalVolumeOptions()
+      setGlobalVolumeOptions();
    })
 
 
 
-   if (domain)
+   DELETE_LOCAL_VOLUME_OPTIONS.addEventListener("click", () =>
    {
-      DOMAIN_TEXT.innerText = domain;
-      DOMAIN_TEXT.classList.add("url");
+      globalVolumeOptions.enabled = true;
+      localVolumeOptions.enabled = false;
 
-      GLOBAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = LOCAL_VOLUME_MULTIPLIER_RANGE.offsetWidth + "px";
+      localVolumeOptions.forEachInput(input => input.value = globalVolumeOptions.inputs[0].value);
 
+      localMonoNoteFlipper.isMono = globalMonoNoteFlipper.isMono;
 
-      DELETE_LOCAL_VOLUME_OPTIONS.addEventListener("click", () =>
-      {
-         localVolumeOptions.enabled = false
-         localVolumeOptions.forEachInput(input => input.value = globalVolumeOptions.inputs[0].value)
-
-         localMonoNoteFlipper.isMono = globalMonoNoteFlipper.isMono
-
-         browser.storage.local.remove(domain)
-      })
-   }
-   else
-   {
-      LOCAL_VOLUME_MULTIPLIER_RANGE.parentElement.classList.add("hidden");
-      document.querySelectorAll(".fake").forEach(node => node.classList.add("hidden"))
-   }
+      browser.storage.local.remove(domain);
+   })
 
 
    updateInputs();

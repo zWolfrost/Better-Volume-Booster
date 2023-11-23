@@ -9,7 +9,6 @@ body
 {
    font-family: sans-serif;
    font-size: 16px;
-   user-select: none;
    background-color: #23222b;
    color: white;
 }
@@ -22,27 +21,15 @@ header
 }
 
 
-
-.container
+select
 {
-   margin: 4px;
-}
-
-
-.option
-{
-   display: flex;
-   flex-direction: row;
-   align-items: center;
-   padding: 5px;
-   padding-top: 5px;
-   padding-right: 8px;
-   margin: 5px;
+   font-size: 16px;
+   background-color: #35333f;
+   color: white;
+   border: none;
    border-radius: 5px;
-   background-color: #2a2933;
-   gap: 10px;
+   cursor: pointer;
 }
-
 
 
 input[type="checkbox"]
@@ -68,10 +55,47 @@ input[type="range"]
    flex: 1 0 auto;
    cursor: pointer;
 }
-input[type="range"].gray
+input[type="range"].disabled
 {
    filter: grayscale(100%);
    opacity: 0.5;
+}
+
+
+.container
+{
+   margin: 4px;
+}
+
+
+.option
+{
+   display: flex;
+   flex-direction: row;
+   align-items: center;
+   padding: 5px;
+   padding-top: 5px;
+   padding-right: 8px;
+   margin: 5px;
+   border-radius: 5px;
+   background-color: #2a2933;
+   gap: 10px;
+}
+
+
+.important-button
+{
+   display: block;
+   margin-left: auto;
+   margin-right: auto;
+
+   cursor: pointer;
+   padding: 5px;
+   border-radius: 5px;
+   background-color: rgb(146, 28, 28);
+   color: white;
+   border: none;
+   font-weight: bold;
 }
 
 
@@ -122,7 +146,7 @@ a.beam > img
 {
    content: url("../assets/beam-32.png");
 }
-a.note.gray > img
+a.note.disabled > img
 {
    filter: invert(26%) sepia(6%) saturate(444%) hue-rotate(202deg) brightness(94%) contrast(85%);
 }
@@ -137,7 +161,7 @@ a.trash-can > img
 
    filter: invert(9%) sepia(83%) saturate(7456%) hue-rotate(14deg) brightness(95%) contrast(95%);
 }
-a.trash-can.gray > img
+a.trash-can.disabled > img
 {
    pointer-events: none;
    filter: invert(26%) sepia(6%) saturate(444%) hue-rotate(202deg) brightness(94%) contrast(85%);
@@ -153,8 +177,7 @@ a.fake
 footer
 {
    margin-top: auto;
-   padding-top: 5px;
-   padding-bottom: 5px;
+   margin-bottom: 10px;
    text-align: center;
 
    font-size: 15px;

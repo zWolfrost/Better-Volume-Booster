@@ -6,14 +6,18 @@
       <script src="volumeoptions.js"></script>
       <script defer src="popup.js"></script>
       <style>
-         body { min-width: 800px; }
+         body
+         {
+            min-width: 800px;
+            user-select: none;
+         }
       </style>
    </head>
 
    <body>
       <div class="container">
          <div class="option">
-            <a class="fake"><img src="../assets/trashcan-32.png" width="16px"/></a>
+            <a id="fake-delete-global-volume-multiplier" class="fake"><img src="../assets/trashcan-32.png" width="16px"/></a>
             <a id="flip-global-sound-mode" class="note beam"><img alt="Flip Global Sound Mode" width="16px"/></a>
 
             <input type="number" id="global-volume-multiplier-counter" min="0" step="1"/>
