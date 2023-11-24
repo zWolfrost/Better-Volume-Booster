@@ -1,21 +1,22 @@
 # Better Volume Booster
-_formerly known as "Volume Booster Without Dementia"_
-
 Have you ever had that issue where a volume booster add-on would just forget what volume did you set it to on a page? No? Well, I have, and it's quite frustrating. That's why I created this add-on.
 
-It's a simple free & open-source add-on that allows you to boost the volume of any* page and will (thankfully) remember the volume you set it to.
+This is a simple free & open-source add-on that allows you to boost the volume of any* page and will (thankfully) remember the volume you set it to.
 
 It has two sliders: a global one and a domain-specific one. You can delete the domain-specific volume multiplier by clicking the trash can icon next to the slider. In this case, the global one will be used.
 
 Clicking the note button will set the sound mode to either mono (♪) or stereo (♫). The default is stereo.
 
-You can also go to the addon's option page to change the hard volume boost limit to any value between 100% and 1000%. This is useful if you want to prevent yourself from accidentally setting the volume to a very high value and consequently blowing your ears off. The default is 500%.
+You can also go to the addon's option page to change the hard volume boost limit to any value between 100% and 1000% (as well as other stuff). This is useful if you want to prevent yourself from accidentally setting the volume to a very high value and consequently blowing your ears off. The default is 500%.
 
 *Its only (known) limitation is that it can't boost the volume of pages which play audio using javascript, such as most of music streaming websites like Spotify or SoundCloud. It works, however, on all tested video streaming websites.
 
-Don't forget to enable the add-on optional permissions in its options, unless you want to click it every time you want to boost the audio of a website.
+_I am not responsible for any damage to your ears or headphones that may result from the add-on use. Use the add-on responsibly and ensure your headphones can handle the boosted volume levels._
 
-**DISCLAIMER**: I am not responsible for any damage to your ears or headphones that may result from the add-on use. Use the add-on responsibly and ensure your headphones can handle the boosted volume levels.
+## Imporant Notice
+In order for some specific videos (which the sources of are cross-origin) to work and not be muted/broken on extension click, you need to go to the extension permissions (`Right Click Extension > Manage Extension > Permissions`) and enable "`Access data for all websites`".
+
+This is because to implement a patch for these specific videos, the extension needs to have the concerned website data access, as well as the server data access from where the video is loaded.
 
 &nbsp;
 ## Changelog
