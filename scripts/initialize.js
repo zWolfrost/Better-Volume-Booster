@@ -22,9 +22,8 @@ browser.storage.local.get().then(storage =>
    })
 })
 
-/*
 
-Replace options with this after backwards compatibility is no longer needed:
+/* Replace options with this when backwards compatibility is no longer needed:
 
 options: {
    ...storage.options,

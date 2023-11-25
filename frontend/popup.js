@@ -46,16 +46,41 @@ function getURL()
 function hideLocalOptions()
 {
    LOCAL_VOLUME_MULTIPLIER_RANGE.parentElement.classList.add("hidden");
+   GLOBAL_VOLUME_MULTIPLIER_RANGE.parentElement.classList.add("single-option")
+
    document.querySelectorAll(".fake").forEach(node => node.classList.add("hidden"))
 }
 function hideGlobalOptions()
 {
    GLOBAL_VOLUME_MULTIPLIER_RANGE.parentElement.classList.add("hidden");
+   LOCAL_VOLUME_MULTIPLIER_RANGE.parentElement.classList.add("single-option")
 }
 function syncRangesWidths()
 {
    const minVolumeMultiplierRangeWidth = Math.min(LOCAL_VOLUME_MULTIPLIER_RANGE.offsetWidth, GLOBAL_VOLUME_MULTIPLIER_RANGE.offsetWidth);
    LOCAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = GLOBAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = minVolumeMultiplierRangeWidth + "px";
+}
+
+
+function animate(element, name, seconds=1, mode="ease-in-out", repetitions=1, reset=true)
+{
+   return new Promise(resolve =>
+   {
+      if (reset == true && element.style.animationName === name)
+      {
+         element.style.animation = "none";
+         element.offsetHeight;
+         element.style.animation = "none";
+      }
+
+      element.style.animation = `${name} ${seconds}s ${mode} ${repetitions}`;
+
+      element.addEventListener("animationend", function()
+      {
+         element.style.animation = "none";
+         resolve();
+      }, {once: true});
+   })
 }
 
 
@@ -152,6 +177,8 @@ function syncRangesWidths()
 
    const localMonoNoteFlipper = new NoteFlipper(FLIP_LOCAL_SOUND_MODE, () =>
    {
+      animate(FLIP_LOCAL_SOUND_MODE, "bounce", 0.1);
+
       localVolumeOptions.enabled = true;
       globalVolumeOptions.enabled = false;
 
@@ -160,6 +187,8 @@ function syncRangesWidths()
 
    const globalMonoNoteFlipper = new NoteFlipper(FLIP_GLOBAL_SOUND_MODE, isMono =>
    {
+      animate(FLIP_GLOBAL_SOUND_MODE, "bounce", 0.1);
+
       if (!localVolumeOptions.enabled)
       {
          localMonoNoteFlipper.isMono = isMono;

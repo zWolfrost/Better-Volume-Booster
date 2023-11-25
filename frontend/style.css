@@ -7,6 +7,8 @@ html, body
 }
 body
 {
+   padding: 4px;
+   box-sizing: border-box;
    font-family: sans-serif;
    font-size: 16px;
    background-color: #23222b;
@@ -20,13 +22,20 @@ header
    text-align: center;
 }
 
+footer
+{
+   margin: auto 0px 5px 0px;
+   text-align: center;
+}
+
+
 
 select
 {
    font-size: 16px;
    background-color: #35333f;
    color: white;
-   border: 1px solid #676774;
+   border: none;
    border-radius: 5px;
    cursor: pointer;
    text-align: center;
@@ -44,6 +53,7 @@ input[type="number"]
    text-align: center;
    appearance: textfield;
    font-weight: bold;
+   font-size: 15px;
 
    background-color: #35333f;
    color: white;
@@ -63,17 +73,13 @@ input[type="range"].disabled
 }
 
 
-.container
-{
-   margin: 4px;
-}
-
-
 .option
 {
    display: flex;
    flex-direction: row;
    align-items: center;
+   min-height: 24px;
+
    padding: 5px;
    padding-top: 5px;
    padding-right: 8px;
@@ -81,6 +87,14 @@ input[type="range"].disabled
    border-radius: 5px;
    background-color: #2a2933;
    gap: 10px;
+}
+.option.centered
+{
+   justify-content: center;
+}
+.option.single-option
+{
+   margin: 0px;
 }
 
 
@@ -175,15 +189,18 @@ a.fake
 
 
 
-footer
-{
-   margin-top: auto;
-   margin-bottom: 10px;
-   text-align: center;
 
-   font-size: 15px;
-}
-footer > a
+@keyframes shake
 {
-   color: white;
+   0% {transform: rotate(12deg);}
+   25% {transform: rotate(-12deg);}
+   50% {transform: rotate(8deg);}
+   75% {transform: rotate(-8deg);}
+   100% {transform: rotate(0deg);}
+}
+@keyframes bounce
+{
+   0% {transform: scale(1);}
+   50% {transform: scale(1.2);}
+   100% {transform: scale(1);}
 }
