@@ -48,3 +48,5 @@ _Note that any version might include a number of stylistic changes, which are of
 
 - **v1.7.0**:
 <br>- Downgraded to manifest v2, in order to require the `<all_urls>` permission. Functionality is unaffected.
+  - v1.7.1:
+  <br>- Reverted a few stylistic changes from v1.7.0.
