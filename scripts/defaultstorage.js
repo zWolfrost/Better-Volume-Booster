@@ -7,7 +7,10 @@ browser.storage.local.get().then(storage =>
       options: {
          ...storage.options,
 
-         volumeMultiplierPercentLimit: storage.options?.volumeMultiplierPercentLimit ?? 500
+         volumeMultiplierPercentLimit: storage.options?.volumeMultiplierPercentLimit ?? 500,
+         keepVolumeMultiplier: storage.options?.hideLocalVolumeMultiplier ? "global" : storage.options?.keepVolumeMultiplier ?? "both",
+
+         hideLocalVolumeMultiplier: undefined,
       },
 
       global: {
@@ -18,3 +21,16 @@ browser.storage.local.get().then(storage =>
       }
    })
 })
+
+/*
+
+Replace options with this after backwards compatibility is no longer needed:
+
+options: {
+   ...storage.options,
+
+   volumeMultiplierPercentLimit: storage.options?.volumeMultiplierPercentLimit ?? 500,
+   keepVolumeMultiplier: storage.options?.keepVolumeMultiplier ?? "both"
+},
+
+*/

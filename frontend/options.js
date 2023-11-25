@@ -1,12 +1,11 @@
 "use strict"
 
-const DEF_VOLUME_MULTIPLIER_LIMIT = 500;
 const MIN_VOLUME_MULTIPLIER_LIMIT = 100;
 const MAX_VOLUME_MULTIPLIER_LIMIT = 1000;
 
 const VOLUME_MULTIPLIER_LIMIT_RANGE = document.getElementById("volume-multiplier-limit-range");
 const VOLUME_MULTIPLIER_LIMIT_COUNTER = document.getElementById("volume-multiplier-limit-counter");
-const HIDE_LOCAL_VOLUME_MULTIPLIER = document.getElementById("hide-local-volume-multiplier");
+const KEEP_VOLUME_MULTIPLIER_SELECT = document.getElementById("keep-volume-multiplier-select");
 const RESET_STORAGE_BUTTON = document.getElementById("reset-storage-button");
 
 
@@ -19,7 +18,7 @@ function updateInputs()
 
       volumeMultiplierLimit.forEachInput(input => input.value = storage.options.volumeMultiplierPercentLimit)
 
-      HIDE_LOCAL_VOLUME_MULTIPLIER.checked = storage.options.hideLocalVolumeMultiplier
+      KEEP_VOLUME_MULTIPLIER_SELECT.value = storage.options.keepVolumeMultiplier;
    })
 }
 
@@ -28,7 +27,7 @@ function setVolumeOptions()
    browser.storage.local.set({
       options: {
          volumeMultiplierPercentLimit: +volumeMultiplierLimit.inputs[0].value,
-         hideLocalVolumeMultiplier: HIDE_LOCAL_VOLUME_MULTIPLIER.checked
+         keepVolumeMultiplier: KEEP_VOLUME_MULTIPLIER_SELECT.value
       }
    })
 }
@@ -47,7 +46,7 @@ RESET_STORAGE_BUTTON.addEventListener("click", async () =>
    }
 })
 
-HIDE_LOCAL_VOLUME_MULTIPLIER.addEventListener("change", setVolumeOptions)
+KEEP_VOLUME_MULTIPLIER_SELECT.addEventListener("change", setVolumeOptions)
 
 
 updateInputs();

@@ -48,6 +48,10 @@ function hideLocalOptions()
    LOCAL_VOLUME_MULTIPLIER_RANGE.parentElement.classList.add("hidden");
    document.querySelectorAll(".fake").forEach(node => node.classList.add("hidden"))
 }
+function hideGlobalOptions()
+{
+   GLOBAL_VOLUME_MULTIPLIER_RANGE.parentElement.classList.add("hidden");
+}
 function syncRangesWidths()
 {
    const minVolumeMultiplierRangeWidth = Math.min(LOCAL_VOLUME_MULTIPLIER_RANGE.offsetWidth, GLOBAL_VOLUME_MULTIPLIER_RANGE.offsetWidth);
@@ -59,6 +63,8 @@ function syncRangesWidths()
 {
    function updateInputs()
    {
+      const RANGE_TOTAL_STEPS = 100;
+
       browser.storage.local.get().then(storage =>
       {
          const localIsAvailable = domain && storage[domain];
@@ -82,17 +88,21 @@ function syncRangesWidths()
             input.value = storage[domainGlobalFallback].volumeMultiplierPercent;
          })
 
-         if (domain && !storage.options.hideLocalVolumeMultiplier)
+         GLOBAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(GLOBAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
+         LOCAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(LOCAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
+
+         if (domain)
          {
             DOMAIN_TEXT.innerText = domain;
-            DOMAIN_TEXT.classList.add("url");
 
-            syncRangesWidths();
+            switch (storage.options.keepVolumeMultiplier)
+            {
+               case "both": syncRangesWidths(); break;
+               case "global": hideLocalOptions(); break;
+               case "local": hideGlobalOptions(); break;
+            }
          }
-         else
-         {
-            hideLocalOptions();
-         }
+         else hideLocalOptions();
       })
    }
 
