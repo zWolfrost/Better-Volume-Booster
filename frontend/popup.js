@@ -120,7 +120,7 @@ function animate(element, name, seconds=1, mode="ease-in-out", repetitions=1, re
          {
             DOMAIN_TEXT.innerText = domain;
 
-            switch (storage.options.keepVolumeMultiplier)
+            switch (storage.options.showVolumeMultiplier)
             {
                case "both": syncRangesWidths(); break;
                case "global": hideLocalOptions(); break;

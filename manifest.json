@@ -1,7 +1,7 @@
 {
    "manifest_version": 2,
    "name": "Better Volume Booster",
-   "version": "1.7.1",
+   "version": "1.7.2",
 
    "description": "Volume booster firefox extension that remembers your choices.",
 
@@ -49,9 +49,9 @@
    ],
 
    "permissions": [
-      "declarativeNetRequest",
-      "storage",
-      "<all_urls>"
+      "<all_urls>",
+      "declarativeNetRequestWithHostAccess",
+      "storage"
    ],
 
 

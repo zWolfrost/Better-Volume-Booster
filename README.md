@@ -43,10 +43,12 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Fixed bug where really short domain names would misalign the sliders.
 
 - **v1.6.0**:
-<br>- Added a "Keep only specific volume multiplier" selector to the options page.
+<br>- Added a "Show only specific volume multiplier" selector to the options page.
 <br>- Added a limit of 100 steps to the sliders, to reduce lag.
 
 - **v1.7.0**:
 <br>- Downgraded to manifest v2, in order to require the `<all_urls>` permission. Functionality is unaffected.
   - v1.7.1:
   <br>- Reverted a few stylistic changes from v1.7.0.
+  - v1.7.2:
+  <br>- Removed unnecessary "Block content on any page" permission.
