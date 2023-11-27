@@ -8,6 +8,11 @@ const LOCAL_VOLUME_MULTIPLIER_COUNTER = document.getElementById("local-volume-mu
 const FLIP_GLOBAL_SOUND_MODE = document.getElementById("flip-global-sound-mode");
 const FLIP_LOCAL_SOUND_MODE = document.getElementById("flip-local-sound-mode");
 const DELETE_LOCAL_VOLUME_OPTIONS = document.getElementById("delete-local-volume-multiplier");
+const MEDIA_SOURCES_MESSAGE = document.getElementById("media-sources-message");
+const MEDIA_SOURCES_LIST = document.getElementById("media-sources-list");
+const ASK_PERMISSIONS_BUTTON = document.getElementById("ask-permissions-button");
+const ENABLE_ALL_PERMISSIONS_BUTTON = document.getElementById("enable-all-permissions-button");
+
 
 
 class NoteFlipper
@@ -35,11 +40,9 @@ class NoteFlipper
    }
 }
 
-function getURL()
+function getCurrentTab()
 {
-   return new Promise((resolve, reject) =>
-      chrome.tabs.query({active: true, currentWindow: true}, tabs => resolve(tabs[0]?.url))
-   );
+   return new Promise((resolve, reject) => browser.tabs.query({active: true, currentWindow: true}, tabs => resolve(tabs[0])))
 }
 
 
@@ -84,8 +87,72 @@ function animate(element, name, seconds=1, mode="ease-in-out", repetitions=1, re
 }
 
 
+function getMediaSourcesDomains()
+{
+   let getDomainFromURL = url => new URL(url).hostname.split(".").slice(-2).join(".");
+
+   let foundMediaElements = document.querySelectorAll("video, audio");
+
+   let sourceDomains = [getDomainFromURL(document.URL)];
+
+   for (let el of foundMediaElements)
+   {
+      try
+      {
+         sourceDomains.push(getDomainFromURL(el.currentSrc)/* , getDomainFromURL(el.src) */);
+      }
+      catch{}
+   }
+
+   return sourceDomains;
+}
+
+function addPermissionToMediaSourcesList(domain)
+{
+   const chkbox = document.createElement("input");
+   chkbox.type = "checkbox";
+   chkbox.checked = true;
+   chkbox.classList.add("media-source-checkbox");
+   chkbox.name = domain;
+
+   const label = document.createElement("label");
+   label.innerText = domain;
+   label.for = domain;
+   label.classList.add("url");
+
+   const li = document.createElement("li");
+   li.appendChild(chkbox);
+   li.appendChild(label);
+   MEDIA_SOURCES_LIST.appendChild(li);
+}
+
+
 (async () =>
 {
+   function log(...args)
+   {
+      browser.scripting.executeScript({ target: {tabId: tab.id}, func: args => console.log(args), args: args });
+   }
+
+   function setGlobalVolumeOptions()
+   {
+      browser.storage.local.set({
+         global: {
+            volumeMultiplierPercent: +globalVolumeOptions.inputs[0].value,
+            mono: globalMonoNoteFlipper.isMono
+         },
+      })
+   }
+   function setLocalVolumeOptions()
+   {
+      browser.storage.local.set({
+         [domain]: {
+            volumeMultiplierPercent: +localVolumeOptions.inputs[0].value,
+            mono: localMonoNoteFlipper.isMono
+         },
+      })
+   }
+
    function updateInputs()
    {
       const RANGE_TOTAL_STEPS = 100;
@@ -116,6 +183,8 @@ function animate(element, name, seconds=1, mode="ease-in-out", repetitions=1, re
          GLOBAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(GLOBAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
          LOCAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(LOCAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
 
+         if (storage.options.disablePermissionPrompt) MEDIA_SOURCES_MESSAGE.classList.add("hidden");
+
          if (domain)
          {
             DOMAIN_TEXT.innerText = domain;
@@ -127,31 +196,50 @@ function animate(element, name, seconds=1, mode="ease-in-out", repetitions=1, re
                case "local": hideGlobalOptions(); break;
             }
          }
-         else hideLocalOptions();
+         else
+         {
+            hideLocalOptions();
+            MEDIA_SOURCES_MESSAGE.classList.add("hidden");
+         }
       })
    }
-
-   function setGlobalVolumeOptions()
+   async function updateMediaSourceDomains()
    {
-      browser.storage.local.set({
-         global: {
-            volumeMultiplierPercent: +globalVolumeOptions.inputs[0].value,
-            mono: globalMonoNoteFlipper.isMono
-         },
-      })
-   }
-   function setLocalVolumeOptions()
-   {
-      browser.storage.local.set({
-         [domain]: {
-            volumeMultiplierPercent: +localVolumeOptions.inputs[0].value,
-            mono: localMonoNoteFlipper.isMono
-         },
-      })
+      if (!domain || await browser.permissions.contains({ origins: ["<all_urls>"] }))
+      {
+         MEDIA_SOURCES_MESSAGE.classList.add("hidden");
+         return;
+      }
+
+      const mediaSourcesResult = await browser.scripting.executeScript({ target: {tabId: tab.id, allFrames: true}, func: getMediaSourcesDomains });
+      const mediaSourcesCleaned = [...new Set( mediaSourcesResult.map(res => res.result).flat().filter(el => el) )];
+
+      log(mediaSourcesResult)
+
+      let mediaSourcesNeeded = [];
+      for (let source of mediaSourcesCleaned)
+      {
+         if (!await browser.permissions.contains({ origins: [`*://*.${source}/*`] }))
+         {
+            mediaSourcesNeeded.push(source);
+         }
+      }
+
+      if (mediaSourcesNeeded.length == 0)
+      {
+         MEDIA_SOURCES_MESSAGE.classList.add("hidden");
+         return;
+      }
+
+      for (let source of mediaSourcesNeeded)
+      {
+         addPermissionToMediaSourcesList(source);
+      }
    }
 
 
-   const url = await getURL();
+   const tab = await getCurrentTab();
+   const url = tab?.url;
    const domain = url ? new URL(url)?.hostname : url
 
 
@@ -211,6 +299,39 @@ function animate(element, name, seconds=1, mode="ease-in-out", repetitions=1, re
       browser.storage.local.remove(domain);
    })
 
+   ASK_PERMISSIONS_BUTTON.addEventListener("click", () =>
+   {
+      let mediaSources = [];
+
+      for (let chkbox of document.getElementsByClassName("media-source-checkbox"))
+      {
+         if (chkbox.checked)
+         {
+            mediaSources.push(`*://*.${chkbox.name}/*`);
+         }
+      }
+
+      browser.permissions.request({ origins: mediaSources }).then(granted =>
+      {
+         if (granted)
+         {
+            browser.tabs.reload(tab.id);
+         }
+      })
+   })
+
+   ENABLE_ALL_PERMISSIONS_BUTTON.addEventListener("click", () =>
+   {
+      browser.permissions.request({ origins: ["<all_urls>"] }).then(granted =>
+      {
+         if (granted)
+         {
+            browser.tabs.reload(tab.id);
+         }
+      })
+   })
+
 
    updateInputs();
+   updateMediaSourceDomains();
 })()

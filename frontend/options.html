@@ -3,8 +3,8 @@
    <head>
       <meta charset="UTF-8">
       <link rel="stylesheet" href="style.css">
-      <script src="volumeoptions.js"></script>
-      <script defer src="options.js"></script>
+      <script src="../scripts/VolumeOptions.js"></script>
+      <script defer src="../scripts/options.js"></script>
    </head>
 
    <body>
@@ -25,10 +25,15 @@
                <option value="local">Show only local</option>
             </select>
          </div>
+
+         <div class="option centered">
+            <input type="checkbox" id="disable-permission-prompt-checkbox" name="disable-permission-prompt-checkbox"/>
+            <label for="disable-permission-prompt-checkbox">Disable the permission prompt</label>
+         </div>
       </div>
 
       <footer>
-         <button id="reset-storage-button" class="important-button">
+         <button id="reset-storage-button">
             CLEAR ALL STORAGE AND RESET ALL SETTINGS TO DEFAULT
          </button>
       </footer>

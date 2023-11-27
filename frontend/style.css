@@ -41,6 +41,12 @@ select
    text-align: center;
 }
 
+ul
+{
+   padding: 15px;
+   margin: 0px;
+}
+
 
 input[type="checkbox"]
 {
@@ -97,7 +103,46 @@ input[type="range"].disabled
 }
 
 
-.important-button
+
+#media-sources-message
+{
+   display: block;
+   padding: 20px 20px 0px 20px;
+}
+#media-sources-container
+{
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   flex-direction: row;
+   gap: 10px;
+   padding: 0px 20px 0px 20px;
+}
+#ask-permissions-button
+{
+   cursor: pointer;
+   padding: 5px;
+   border-radius: 5px;
+   background-color: #403d4b;
+   color: white;
+   border: none;
+   font-weight: bold;
+   font-size: 15px;
+}
+#enable-all-permissions-button
+{
+   cursor: pointer;
+   padding: 0px 4px 0px 4px;
+   border-radius: 5px;
+   background-color: #403d4b;
+   color: white;
+   border: none;
+   font-weight: bold;
+   font-family: arial;
+}
+
+
+#reset-storage-button
 {
    display: block;
    margin-left: auto;
@@ -137,7 +182,7 @@ input[type="range"].disabled
 }
 .hidden
 {
-   display: none;
+   display: none !important;
 }
 
 

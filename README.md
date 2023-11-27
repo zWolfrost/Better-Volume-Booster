@@ -3,7 +3,7 @@ Have you ever had that issue where a volume booster add-on would just forget wha
 
 This is a simple free & open-source add-on that allows you to boost the volume of any* page and will (thankfully) remember the volume you set it to.
 
-It has two sliders: a global one and a domain-specific one. You can delete the domain-specific volume multiplier by clicking the trash can icon next to the slider. In this case, the global one will be used.
+It has two sliders: a global one and a domain-specific one. You can delete the domain-specific volume multiplier by clicking the trash can icon next to the slider. In that case, the global one will be used.
 
 Clicking the note button will set the sound mode to either mono (♪) or stereo (♫). The default is stereo.
 
@@ -52,3 +52,8 @@ _Note that any version might include a number of stylistic changes, which are of
   <br>- Reverted a few stylistic changes from v1.7.0.
   - v1.7.2:
   <br>- Removed unnecessary "Block content on any page" permission.
+
+- **v1.8.0**:
+<br>- Reverted to manifest v3, and made the "Access your data for all websites" permission optional. Again.
+<br>- Added a prompt when the extension needs to access data from domains in order to work.
+<br>- Added an option to disable the prompt.

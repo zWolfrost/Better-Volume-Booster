@@ -7,6 +7,7 @@ const VOLUME_MULTIPLIER_LIMIT_RANGE = document.getElementById("volume-multiplier
 const VOLUME_MULTIPLIER_LIMIT_COUNTER = document.getElementById("volume-multiplier-limit-counter");
 const SHOW_VOLUME_MULTIPLIER_SELECT = document.getElementById("show-volume-multiplier-select");
 const RESET_STORAGE_BUTTON = document.getElementById("reset-storage-button");
+const DISABLE_PERMISSION_PROMPT_CHECKBOX = document.getElementById("disable-permission-prompt-checkbox");
 
 
 function updateInputs()
@@ -22,18 +23,19 @@ function updateInputs()
    })
 }
 
-function setVolumeOptions()
+function setOptions()
 {
    browser.storage.local.set({
       options: {
          volumeMultiplierPercentLimit: +volumeMultiplierLimit.inputs[0].value,
-         showVolumeMultiplier: SHOW_VOLUME_MULTIPLIER_SELECT.value
+         showVolumeMultiplier: SHOW_VOLUME_MULTIPLIER_SELECT.value,
+         disablePermissionPrompt: DISABLE_PERMISSION_PROMPT_CHECKBOX.checked,
       }
    })
 }
 
 
-const volumeMultiplierLimit = new VolumeOptions([VOLUME_MULTIPLIER_LIMIT_COUNTER, VOLUME_MULTIPLIER_LIMIT_RANGE], setVolumeOptions)
+const volumeMultiplierLimit = new VolumeOptions([VOLUME_MULTIPLIER_LIMIT_COUNTER, VOLUME_MULTIPLIER_LIMIT_RANGE], setOptions)
 
 RESET_STORAGE_BUTTON.addEventListener("click", async () =>
 {
@@ -46,7 +48,8 @@ RESET_STORAGE_BUTTON.addEventListener("click", async () =>
    }
 })
 
-SHOW_VOLUME_MULTIPLIER_SELECT.addEventListener("change", setVolumeOptions)
+SHOW_VOLUME_MULTIPLIER_SELECT.addEventListener("change", setOptions)
+DISABLE_PERMISSION_PROMPT_CHECKBOX.addEventListener("change", setOptions)
 
 
 updateInputs();
