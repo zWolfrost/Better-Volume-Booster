@@ -12,6 +12,7 @@ const MEDIA_SOURCES_MESSAGE = document.getElementById("media-sources-message");
 const MEDIA_SOURCES_LIST = document.getElementById("media-sources-list");
 const ASK_PERMISSIONS_BUTTON = document.getElementById("ask-permissions-button");
 const ENABLE_ALL_PERMISSIONS_BUTTON = document.getElementById("enable-all-permissions-button");
+const NO_MEDIA_DETECTED_MESSAGE = document.getElementById("no-media-detected-message");
 
 
 
@@ -87,33 +88,13 @@ function animate(element, name, seconds=1, mode="ease-in-out", repetitions=1, re
 }
 
 
-function getMediaSourcesDomains()
-{
-   let getDomainFromURL = url => new URL(url).hostname.split(".").slice(-2).join(".");
-
-   let foundMediaElements = document.querySelectorAll("video, audio");
-
-   let sourceDomains = [getDomainFromURL(document.URL)];
-
-   for (let el of foundMediaElements)
-   {
-      try
-      {
-         sourceDomains.push(getDomainFromURL(el.currentSrc)/* , getDomainFromURL(el.src) */);
-      }
-      catch{}
-   }
-
-   return sourceDomains;
-}
-
 function addPermissionToMediaSourcesList(domain)
 {
    const chkbox = document.createElement("input");
    chkbox.type = "checkbox";
    chkbox.checked = true;
-   chkbox.classList.add("media-source-checkbox");
    chkbox.name = domain;
+   chkbox.classList.add("media-source-checkbox");
 
    const label = document.createElement("label");
    label.innerText = domain;
@@ -153,7 +134,7 @@ function addPermissionToMediaSourcesList(domain)
       })
    }
 
-   function updateInputs()
+   function updatePopup()
    {
       const RANGE_TOTAL_STEPS = 100;
 
@@ -183,8 +164,6 @@ function addPermissionToMediaSourcesList(domain)
          GLOBAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(GLOBAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
          LOCAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(LOCAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
 
-         if (storage.options.disablePermissionPrompt) MEDIA_SOURCES_MESSAGE.classList.add("hidden");
-
          if (domain)
          {
             DOMAIN_TEXT.innerText = domain;
@@ -195,45 +174,78 @@ function addPermissionToMediaSourcesList(domain)
                case "global": hideLocalOptions(); break;
                case "local": hideGlobalOptions(); break;
             }
+
+            if (storage.options.disablePermissionPrompt == false)
+            {
+               updateMediaSourceDomains({ includePermissionSubdomains: storage.options.includePermissionSubdomains });
+            }
          }
          else
          {
             hideLocalOptions();
-            MEDIA_SOURCES_MESSAGE.classList.add("hidden");
          }
       })
    }
-   async function updateMediaSourceDomains()
+   async function updateMediaSourceDomains({ includePermissionSubdomains })
    {
-      if (!domain || await browser.permissions.contains({ origins: ["<all_urls>"] }))
+      function getMediaSourcesDomains()
       {
-         MEDIA_SOURCES_MESSAGE.classList.add("hidden");
-         return;
-      }
+         const foundMediaElements = document.querySelectorAll("video, audio");
+         let sourceDomains = [];
 
-      const mediaSourcesResult = await browser.scripting.executeScript({ target: {tabId: tab.id, allFrames: true}, func: getMediaSourcesDomains });
-      const mediaSourcesCleaned = [...new Set( mediaSourcesResult.map(res => res.result).flat().filter(el => el) )];
-
-      log(mediaSourcesResult)
-
-      let mediaSourcesNeeded = [];
-      for (let source of mediaSourcesCleaned)
-      {
-         if (!await browser.permissions.contains({ origins: [`*://*.${source}/*`] }))
+         for (let el of foundMediaElements)
          {
-            mediaSourcesNeeded.push(source);
+            try /* el.src */
+            {
+               let hostname = new URL(el.currentSrc).origin.split("/").at(-1);
+               sourceDomains.push(hostname);
+            }
+            catch{}
          }
+
+         return sourceDomains;
       }
 
-      if (mediaSourcesNeeded.length == 0)
+      if (domain)
       {
-         MEDIA_SOURCES_MESSAGE.classList.add("hidden");
-         return;
-      }
+         const mediaSourcesResult = await browser.scripting.executeScript({ target: {tabId: tab.id, allFrames: true}, /* injectImmediately: true, */ func: getMediaSourcesDomains });
+         const mediaSourcesCleaned = mediaSourcesResult.map(res => res.result).flat().filter(el => el);
 
-      for (let source of mediaSourcesNeeded)
-      {
-         addPermissionToMediaSourcesList(source);
+         //log(mediaSourcesResult)
+
+         if (mediaSourcesCleaned.length > 0)
+         {
+            let mediaSourcesRange = [domain, ...mediaSourcesCleaned]
+            if (!includePermissionSubdomains) mediaSourcesRange = mediaSourcesRange.map(hostname => hostname.split(".").slice(-2).join("."));
+
+            const mediaSourcesUnique = [...new Set(mediaSourcesRange)];
+            //const mediaSourcesNeeded = await Promise.all( mediaSourcesRange.filter( async source => !(await browser.permissions.contains({ origins: [`*://*.${source}/*`] })) ) );
+
+            //log(mediaSourcesUnique)
+
+            let mediaSourcesNeeded = [];
+            for (let source of mediaSourcesUnique)
+            {
+               if (!await browser.permissions.contains({ origins: [`*://*.${source}/*`] }))
+               {
+                  mediaSourcesNeeded.push(source);
+               }
+            }
+
+            if (mediaSourcesNeeded.length > 0)
+            {
+               for (let source of mediaSourcesNeeded)
+               {
+                  addPermissionToMediaSourcesList(source);
+               }
+
+               MEDIA_SOURCES_MESSAGE.classList.remove("hidden");
+            }
+         }
+         else
+         {
+            NO_MEDIA_DETECTED_MESSAGE.classList.remove("hidden");
+         }
       }
    }
 
@@ -332,6 +344,5 @@ function addPermissionToMediaSourcesList(domain)
    })
 
 
-   updateInputs();
-   updateMediaSourceDomains();
+   updatePopup();
 })()

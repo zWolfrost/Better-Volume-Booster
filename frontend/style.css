@@ -32,7 +32,6 @@ footer
 
 select
 {
-   font-size: 16px;
    background-color: #35333f;
    color: white;
    border: none;
@@ -103,11 +102,21 @@ input[type="range"].disabled
 }
 
 
+.button
+{
+   cursor: pointer;
+   border-radius: 5px;
+   background-color: #403d4b;
+   color: white;
+   border: none;
+}
+
+
 
 #media-sources-message
 {
    display: block;
-   padding: 20px 20px 0px 20px;
+   padding: 20px 20px 10px 20px;
 }
 #media-sources-container
 {
@@ -120,25 +129,21 @@ input[type="range"].disabled
 }
 #ask-permissions-button
 {
-   cursor: pointer;
    padding: 5px;
-   border-radius: 5px;
-   background-color: #403d4b;
-   color: white;
-   border: none;
    font-weight: bold;
    font-size: 15px;
 }
 #enable-all-permissions-button
 {
-   cursor: pointer;
    padding: 0px 4px 0px 4px;
-   border-radius: 5px;
-   background-color: #403d4b;
-   color: white;
-   border: none;
    font-weight: bold;
    font-family: arial;
+}
+#no-media-detected-message
+{
+   display: block;
+   text-align: center;
+   padding-top: 10px;
 }
 
 

@@ -57,3 +57,8 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Reverted to manifest v3, and made the "Access your data for all websites" permission optional. Again.
 <br>- Added a prompt when the extension needs to access data from domains in order to work.
 <br>- Added an option to disable the prompt.
+
+- **v1.9.0**:
+<br>- Added a website permission range option (domain or host).
+<br>- Added a "No media detected" message.
+<br>- Removed permission prompt when no media elements are found on a page.

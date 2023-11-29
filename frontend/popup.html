@@ -40,13 +40,13 @@
             <label for="local-volume-multiplier-range"><label id="domain-text" class="url">Local</label> volume</label>
          </div>
 
-         <div id="media-sources-message" class="option">
+         <div id="media-sources-message" class="option hidden">
             <div>
-               Did the audio just get muted? If yes, you should probably enable data reading permission on the following domains (or just <a id="enable-all-permissions-button">enable it for all websites</a> and you won't get prompted again):
+               Did the audio just get muted? If yes, you should probably enable data access permissions for the following domains (or just <a id="enable-all-permissions-button" class="button">enable it for all websites</a> and you won't get prompted again):
             </div>
 
             <div id="media-sources-container">
-               <button id="ask-permissions-button">Ask for the selected permissions</button>
+               <button id="ask-permissions-button" class="button">Ask for the selected permissions</button>
 
                <ul id="media-sources-list">
                   <!-- <li>
@@ -71,6 +71,10 @@
                   </li> -->
                </ul>
             </div>
+         </div>
+
+         <div id="no-media-detected-message" class="option hidden">
+            No media detected...
          </div>
       </div>
    </body>

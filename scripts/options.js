@@ -8,6 +8,7 @@ const VOLUME_MULTIPLIER_LIMIT_COUNTER = document.getElementById("volume-multipli
 const SHOW_VOLUME_MULTIPLIER_SELECT = document.getElementById("show-volume-multiplier-select");
 const RESET_STORAGE_BUTTON = document.getElementById("reset-storage-button");
 const DISABLE_PERMISSION_PROMPT_CHECKBOX = document.getElementById("disable-permission-prompt-checkbox");
+const INCLUDE_PERMISSION_SUBDOMAINS_CHECKBOX = document.getElementById("include-permission-subdomain-checkbox");
 
 
 function updateInputs()
@@ -20,6 +21,7 @@ function updateInputs()
       volumeMultiplierLimit.forEachInput(input => input.value = storage.options.volumeMultiplierPercentLimit)
 
       SHOW_VOLUME_MULTIPLIER_SELECT.value = storage.options.showVolumeMultiplier;
+      INCLUDE_PERMISSION_SUBDOMAINS_CHECKBOX.checked = storage.options.includePermissionSubdomains;
    })
 }
 
@@ -30,6 +32,7 @@ function setOptions()
          volumeMultiplierPercentLimit: +volumeMultiplierLimit.inputs[0].value,
          showVolumeMultiplier: SHOW_VOLUME_MULTIPLIER_SELECT.value,
          disablePermissionPrompt: DISABLE_PERMISSION_PROMPT_CHECKBOX.checked,
+         includePermissionSubdomains: INCLUDE_PERMISSION_SUBDOMAINS_CHECKBOX.checked
       }
    })
 }
@@ -50,6 +53,7 @@ RESET_STORAGE_BUTTON.addEventListener("click", async () =>
 
 SHOW_VOLUME_MULTIPLIER_SELECT.addEventListener("change", setOptions)
 DISABLE_PERMISSION_PROMPT_CHECKBOX.addEventListener("change", setOptions)
+INCLUDE_PERMISSION_SUBDOMAINS_CHECKBOX.addEventListener("change", setOptions)
 
 
 updateInputs();
