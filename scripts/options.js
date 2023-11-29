@@ -11,7 +11,7 @@ const DISABLE_PERMISSION_PROMPT_CHECKBOX = document.getElementById("disable-perm
 const INCLUDE_PERMISSION_SUBDOMAINS_CHECKBOX = document.getElementById("include-permission-subdomain-checkbox");
 
 
-function updateInputs()
+function updateSettings()
 {
    browser.storage.local.get().then(storage =>
    {
@@ -21,6 +21,7 @@ function updateInputs()
       volumeMultiplierLimit.forEachInput(input => input.value = storage.options.volumeMultiplierPercentLimit)
 
       SHOW_VOLUME_MULTIPLIER_SELECT.value = storage.options.showVolumeMultiplier;
+      DISABLE_PERMISSION_PROMPT_CHECKBOX.checked = storage.options.disablePermissionPrompt;
       INCLUDE_PERMISSION_SUBDOMAINS_CHECKBOX.checked = storage.options.includePermissionSubdomains;
    })
 }
@@ -56,4 +57,4 @@ DISABLE_PERMISSION_PROMPT_CHECKBOX.addEventListener("change", setOptions)
 INCLUDE_PERMISSION_SUBDOMAINS_CHECKBOX.addEventListener("change", setOptions)
 
 
-updateInputs();
+updateSettings();

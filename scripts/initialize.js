@@ -9,8 +9,8 @@ browser.storage.local.get().then(storage =>
 
          volumeMultiplierPercentLimit: storage.options?.volumeMultiplierPercentLimit ?? 500,
          showVolumeMultiplier: storage.options?.hideLocalVolumeMultiplier ? "global" : storage.options?.keepVolumeMultiplier ?? storage.options?.showVolumeMultiplier ?? "both",
-         websitePermissionRange: storage.options?.websitePermissionRange ?? "domain",
-         includePermissionSubdomains: storage.options?.includePermissionSubdomains ?? true,
+         disablePermissionPrompt: storage.options?.disablePermissionPrompt ?? false,
+         includePermissionSubdomains: storage.options?.includePermissionSubdomains ?? false,
 
          hideLocalVolumeMultiplier: undefined,
          keepVolumeMultiplier: undefined
@@ -33,8 +33,8 @@ options: {
 
    volumeMultiplierPercentLimit: storage.options?.volumeMultiplierPercentLimit ?? 500,
    showVolumeMultiplier: storage.options?.showVolumeMultiplier ?? "both",
-   websitePermissionRange: storage.options?.websitePermissionRange ?? "domain",
-   disablePermissionPrompt: storage.options?.disablePermissionPrompt ?? false
+   disablePermissionPrompt: storage.options?.disablePermissionPrompt ?? false,
+   includePermissionSubdomains: storage.options?.includePermissionSubdomains ?? false,
 },
 
 */

@@ -62,3 +62,6 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Added a website permission range option (domain or host).
 <br>- Added a "No media detected" message.
 <br>- Removed permission prompt when no media elements are found on a page.
+  - v1.9.1:
+  <br>- Fixed bug where the disable permission prompt checkbox won't show the actual set state.
+  <br>- Fixed some settings wrong defaults.
