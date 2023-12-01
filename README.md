@@ -9,9 +9,16 @@ Clicking the note button will set the sound mode to either mono (♪) or stereo 
 
 You can also go to the add-on's option page to change the hard volume boost limit to any value between 100% and 1000% (as well as other stuff). This is useful if you want to prevent yourself from accidentally setting the volume to a very high value and consequently blowing your ears off. The default is 500%.
 
-*Its only (known) limitation is that it can't boost the volume of pages which play audio using javascript because of DRM reasons, such as most of music streaming websites like Spotify or SoundCloud. It works, however, on all tested video streaming websites.
+*Its only (known) limitation is that it can't boost the volume of pages which play audio using JavaScript because of DRM reasons, such as most music streaming websites like Spotify or SoundCloud. It works, however, on all tested video streaming websites.
 
 _I am not responsible for any damage to your ears or headphones that may result from the add-on use. Use the add-on responsibly and ensure your headphones can handle the boosted volume levels._
+
+&nbsp;
+## Availability
+Available on the Firefox Add-ons site (AMO) here:  
+https://addons.mozilla.org/firefox/addon/better-volume-booster/  
+or directly from this GitHub repository here:  
+https://github.com/zWolfrost/Better-Volume-Booster/releases  
 
 &nbsp;
 ## Changelog
