@@ -1,7 +1,7 @@
 {
    "manifest_version": 3,
    "name": "Better Volume Booster",
-   "version": "1.9.1",
+   "version": "1.9.2",
 
    "description": "Volume booster firefox extension that remembers your choices.",
 
@@ -27,7 +27,7 @@
 
 
    "declarative_net_request": {
-      "rule_resources" : [{
+      "rule_resources": [{
          "id": "crossoriginfix",
          "enabled": true,
          "path": "declarativerules/crossoriginfix.json"

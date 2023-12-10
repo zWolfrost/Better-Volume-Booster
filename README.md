@@ -9,16 +9,15 @@ Clicking the note button will set the sound mode to either mono (♪) or stereo 
 
 You can also go to the add-on's option page to change the hard volume boost limit to any value between 100% and 1000% (as well as other stuff). This is useful if you want to prevent yourself from accidentally setting the volume to a very high value and consequently blowing your ears off. The default is 500%.
 
-*Its only (known) limitation is that it can't boost the volume of pages which play audio using JavaScript because of DRM reasons, such as most music streaming websites like Spotify or SoundCloud. It works, however, on all tested video streaming websites.
+*Its only (known) limitation is that it can't boost the volume of webpages which play DRM-protected content using JavaScript, such as Netflix and Spotify.
 
 _I am not responsible for any damage to your ears or headphones that may result from the add-on use. Use the add-on responsibly and ensure your headphones can handle the boosted volume levels._
 
 &nbsp;
 ## Availability
-Available on the Firefox Add-ons site (AMO) here:  
-https://addons.mozilla.org/firefox/addon/better-volume-booster/  
-or directly from this GitHub repository here:  
-https://github.com/zWolfrost/Better-Volume-Booster/releases  
+Available on the [Firefox Add-ons site](https://addons.mozilla.org/firefox/addon/better-volume-booster/) (AMO)
+
+or directly on this GitHub repository's [releases](https://github.com/zWolfrost/Better-Volume-Booster/releases) page.
 
 &nbsp;
 ## Changelog
@@ -66,9 +65,11 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Added an option to disable the prompt.
 
 - **v1.9.0**:
-<br>- Added a website permission range option (domain or host).
+<br>- Added an option to add subdomains to the permission prompt' websites.
 <br>- Added a "No media detected" message.
 <br>- Removed permission prompt when no media elements are found on a page.
   - v1.9.1:
   <br>- Fixed bug where the disable permission prompt checkbox won't show the actual set state.
   <br>- Fixed some settings wrong defaults.
+  - v1.9.2:
+  <br>- Fixed bug where the extension would create unnecessary & mute audio streams in the mixer.

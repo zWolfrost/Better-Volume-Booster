@@ -17,17 +17,18 @@ class AudioTweaker
 {
    constructor()
    {
-      this.context = new AudioContext();
-      this.gainNode = this.context.createGain();
-      this.gainNode.connect(this.context.destination);
+      this.audioCtx = new AudioContext();
 
-      this.ORIGINAL_CHANNEL_COUNT = this.context.destination.channelCount;
+      this.gainNode = this.audioCtx.createGain();
+      this.gainNode.connect(this.audioCtx.destination);
+
+      this.INITIAL_CHANNEL_COUNT = this.audioCtx.destination.channelCount;
       this.MONO_CHANNEL_COUNT = 1;
    }
 
    connectMediaElement(el)
    {
-      return this.context.createMediaElementSource(el).connect(this.gainNode);
+      this.audioCtx.createMediaElementSource(el).connect(this.gainNode);
    }
 
    get gain()
@@ -41,15 +42,15 @@ class AudioTweaker
 
    get mono()
    {
-      return this.context.destination.channelCount == this.MONO_CHANNEL_COUNT;
+      return this.audioCtx.destination.channelCount == this.MONO_CHANNEL_COUNT;
    }
    set mono(mono)
    {
-      this.context.destination.channelCount = (mono ? this.MONO_CHANNEL_COUNT : this.ORIGINAL_CHANNEL_COUNT);
+      this.audioCtx.destination.channelCount = (mono ? this.MONO_CHANNEL_COUNT : this.INITIAL_CHANNEL_COUNT);
    }
 }
 
-const audio = new AudioTweaker();
+let audio = null;
 
 
 
@@ -102,6 +103,8 @@ function onMediaElementCreation(el)
 
       el.classList.add(BOOSTED_CLASSNAME);
       el.crossOrigin = "anonymous";
+
+      if (!audio) audio = new AudioTweaker();
       audio.connectMediaElement(el);
    }
 }
@@ -115,8 +118,11 @@ function updateVolume()
    {
       const domainGlobalFallback = domain in storage ? domain : "global";
 
-      audio.gain = storage[domainGlobalFallback].volumeMultiplierPercent / 100;
-      audio.mono = storage[domainGlobalFallback].mono;
+      if (audio)
+      {
+         audio.gain = storage[domainGlobalFallback].volumeMultiplierPercent / 100;
+         audio.mono = storage[domainGlobalFallback].mono;
+      }
 
       if (DEBUG) console.log(storage[domainGlobalFallback].volumeMultiplierPercent, storage[domainGlobalFallback].mono);
    })
