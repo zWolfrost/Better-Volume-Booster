@@ -73,3 +73,5 @@ _Note that any version might include a number of stylistic changes, which are of
   <br>- Fixed some settings wrong defaults.
   - v1.9.2:
   <br>- Fixed bug where the extension would create unnecessary & mute audio streams in the mixer.
+  - v1.9.3:
+  <br>- Fixed bug where the extension would create unnecessary audio streams for videos that were not being played.

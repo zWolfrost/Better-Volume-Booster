@@ -28,7 +28,7 @@ class AudioTweaker
 
    connectMediaElement(el)
    {
-      this.audioCtx.createMediaElementSource(el).connect(this.gainNode);
+      return this.audioCtx.createMediaElementSource(el).connect(this.gainNode);
    }
 
    get gain()
@@ -56,7 +56,7 @@ let audio = null;
 
 // WATCH FOR MEDIA ELEMENTS OR FINDING THEM IF THEY ALREADY EXIST
 const BOOSTED_CLASSNAME = `_volume-boosted`;
-const MEDIA_TAGS_SELECTOR = ["video", "audio", /* "embed" */].join(",");
+const MEDIA_TAGS_SELECTOR = "video, audio";
 
 
 function onNodeCreation(callback, {type, selector} = {})
@@ -95,7 +95,7 @@ function onNodeCreation(callback, {type, selector} = {})
 onNodeCreation(onMediaElementCreation, {type: Node.ELEMENT_NODE, selector: MEDIA_TAGS_SELECTOR})
 document.querySelectorAll(MEDIA_TAGS_SELECTOR).forEach(onMediaElementCreation);
 
-function onMediaElementCreation(el)
+async function onMediaElementCreation(el)
 {
    if (!el.classList.contains(BOOSTED_CLASSNAME))
    {
@@ -104,7 +104,17 @@ function onMediaElementCreation(el)
       el.classList.add(BOOSTED_CLASSNAME);
       el.crossOrigin = "anonymous";
 
-      if (!audio) audio = new AudioTweaker();
+      if (el.paused)
+      {
+         await new Promise(resolve => el.addEventListener("play", resolve, {once: true}));
+      }
+
+      if (!audio)
+      {
+         audio = new AudioTweaker();
+         updateVolume();
+      }
+
       audio.connectMediaElement(el);
    }
 }
@@ -114,19 +124,18 @@ function onMediaElementCreation(el)
 // SETTING UP STORAGE LISTENER TO UPDATE VOLUME MULTIPLIER
 function updateVolume()
 {
-   browser.storage.local.get().then(storage =>
+   if (audio)
    {
-      const domainGlobalFallback = domain in storage ? domain : "global";
-
-      if (audio)
+      browser.storage.local.get().then(storage =>
       {
+         const domainGlobalFallback = domain in storage ? domain : "global";
+
          audio.gain = storage[domainGlobalFallback].volumeMultiplierPercent / 100;
          audio.mono = storage[domainGlobalFallback].mono;
-      }
 
-      if (DEBUG) console.log(storage[domainGlobalFallback].volumeMultiplierPercent, storage[domainGlobalFallback].mono);
-   })
+         if (DEBUG) console.log(storage[domainGlobalFallback].volumeMultiplierPercent, storage[domainGlobalFallback].mono);
+      })
+   }
 }
 
-updateVolume();
 browser.storage.onChanged.addListener(updateVolume);
