@@ -175,7 +175,7 @@ function addPermissionToMediaSourcesList(domain)
                case "local": hideGlobalOptions(); break;
             }
 
-            if (storage.options.disablePermissionPrompt == false)
+            if (storage.options.disableAnyPrompt == false)
             {
                updateMediaSourceDomains({ includePermissionSubdomains: storage.options.includePermissionSubdomains })
             }
@@ -198,8 +198,8 @@ function addPermissionToMediaSourcesList(domain)
          {
             try
             {
-               let hostname = new URL(el.currentSrc ?? el.src).hostname;
-               if (hostname) sourceDomains.push(hostname);
+               let hostname = new URL( new URL(el.currentSrc ?? el.src).origin ).hostname;
+               sourceDomains.push(hostname);
             }
             catch{}
          }
@@ -212,7 +212,7 @@ function addPermissionToMediaSourcesList(domain)
          const mediaSourcesResult = await browser.scripting.executeScript({ target: {tabId: tab.id, allFrames: true}, /* injectImmediately: true, */ func: getMediaSourcesDomains });
          const mediaSourcesCleaned = mediaSourcesResult.map(res => res.result).flat().filter(el => el);
 
-         log(mediaSourcesResult)
+         //log(mediaSourcesResult)
 
          if (mediaSourcesCleaned.length > 0)
          {

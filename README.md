@@ -83,3 +83,7 @@ _Note that any version might include a number of stylistic changes, which are of
   - v1.10.1:
   <br>- Fixed bug where the permissions checkboxes would not work (removed refresh interval, was a bad idea).
   <br>- Fixed bug where the extension would ask for "null" permissions.
+  - v1.10.2:
+  <br>- Commented leftover debug logs.
+  <br>- Fixed bug where the extension would parse correctly urls with uncommon protocols.
+  <br>- Marked the option "disable any prompt" as deprecated.

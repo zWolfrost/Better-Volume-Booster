@@ -8,15 +8,14 @@ browser.storage.local.get().then(storage =>
          ...storage.options,
 
          volumeMultiplierPercentLimit: storage.options?.volumeMultiplierPercentLimit ?? 500,
+         showVolumeMultiplier: storage.options?.showVolumeMultiplier ?? "both",
          // replace when backwards compatibility no longer needed with:
-         // showVolumeMultiplier: storage.options?.showVolumeMultiplier ?? "both",
-         showVolumeMultiplier: storage.options?.hideLocalVolumeMultiplier ? "global" : storage.options?.keepVolumeMultiplier ?? storage.options?.showVolumeMultiplier ?? "both",
-         disablePermissionPrompt: storage.options?.disablePermissionPrompt ?? false,
+         // disableAnyPrompt: storage.options?.disableAnyPrompt ?? false,
+         disableAnyPrompt: storage.options?.disablePermissionPrompt ?? storage.options?.disableAnyPrompt ?? false,
          includePermissionSubdomains: storage.options?.includePermissionSubdomains ?? false,
 
          // remove when backwards compatibility no longer needed
-         hideLocalVolumeMultiplier: undefined,
-         keepVolumeMultiplier: undefined
+         disablePermissionPrompt: undefined
       },
 
       global: {
