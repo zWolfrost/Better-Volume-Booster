@@ -80,3 +80,6 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Added a 500ms interval on which the popup will refresh the found media source domains.
 <br>- Fixed bug where unchecking all websites permissions and asking for them anyway would refresh the page.
 <br>- Fixed bug where the extension would not ask for the iframe source permission when the video is in an iframe.
+  - v1.10.1:
+  <br>- Fixed bug where the permissions checkboxes would not work (removed refresh interval, was a bad idea).
+  <br>- Fixed bug where the extension would ask for "null" permissions.
