@@ -8,10 +8,13 @@ browser.storage.local.get().then(storage =>
          ...storage.options,
 
          volumeMultiplierPercentLimit: storage.options?.volumeMultiplierPercentLimit ?? 500,
+         // replace when backwards compatibility no longer needed with:
+         // showVolumeMultiplier: storage.options?.showVolumeMultiplier ?? "both",
          showVolumeMultiplier: storage.options?.hideLocalVolumeMultiplier ? "global" : storage.options?.keepVolumeMultiplier ?? storage.options?.showVolumeMultiplier ?? "both",
          disablePermissionPrompt: storage.options?.disablePermissionPrompt ?? false,
          includePermissionSubdomains: storage.options?.includePermissionSubdomains ?? false,
 
+         // remove when backwards compatibility no longer needed
          hideLocalVolumeMultiplier: undefined,
          keepVolumeMultiplier: undefined
       },
@@ -24,17 +27,3 @@ browser.storage.local.get().then(storage =>
       }
    })
 })
-
-
-/* Replace options with this when backwards compatibility is no longer needed: (current updates work from v1.0.0 to v1.7.1)
-
-options: {
-   ...storage.options,
-
-   volumeMultiplierPercentLimit: storage.options?.volumeMultiplierPercentLimit ?? 500,
-   showVolumeMultiplier: storage.options?.showVolumeMultiplier ?? "both",
-   disablePermissionPrompt: storage.options?.disablePermissionPrompt ?? false,
-   includePermissionSubdomains: storage.options?.includePermissionSubdomains ?? false,
-},
-
-*/

@@ -137,6 +137,7 @@ function addPermissionToMediaSourcesList(domain)
    function updatePopup()
    {
       const RANGE_TOTAL_STEPS = 100;
+      const MEDIA_SOURCES_REFRESH_MS = 500;
 
       browser.storage.local.get().then(storage =>
       {
@@ -177,7 +178,10 @@ function addPermissionToMediaSourcesList(domain)
 
             if (storage.options.disablePermissionPrompt == false)
             {
-               updateMediaSourceDomains({ includePermissionSubdomains: storage.options.includePermissionSubdomains });
+               let updateMediaSourceDomainsFunction = () => updateMediaSourceDomains({ includePermissionSubdomains: storage.options.includePermissionSubdomains })
+
+               updateMediaSourceDomainsFunction()
+               setInterval(updateMediaSourceDomainsFunction, MEDIA_SOURCES_REFRESH_MS);
             }
          }
          else
@@ -190,14 +194,15 @@ function addPermissionToMediaSourcesList(domain)
    {
       function getMediaSourcesDomains()
       {
-         const foundMediaElements = document.querySelectorAll("video, audio");
          let sourceDomains = [];
 
-         for (let el of foundMediaElements)
+         const foundElements = document.querySelectorAll("video, audio, iframe");
+
+         for (let el of foundElements)
          {
-            try /* el.src */
+            try
             {
-               let hostname = new URL(el.currentSrc).origin.split("/").at(-1);
+               let hostname = new URL(el.currentSrc ?? el.src).origin.split("/").at(-1);
                sourceDomains.push(hostname);
             }
             catch{}
@@ -234,6 +239,8 @@ function addPermissionToMediaSourcesList(domain)
 
             if (mediaSourcesNeeded.length > 0)
             {
+               MEDIA_SOURCES_LIST.innerHTML = "";
+
                for (let source of mediaSourcesNeeded)
                {
                   addPermissionToMediaSourcesList(source);
@@ -323,13 +330,16 @@ function addPermissionToMediaSourcesList(domain)
          }
       }
 
-      browser.permissions.request({ origins: mediaSources }).then(granted =>
+      if (mediaSources.length > 0)
       {
-         if (granted)
+         browser.permissions.request({ origins: mediaSources }).then(granted =>
          {
-            browser.tabs.reload(tab.id);
-         }
-      })
+            if (granted)
+            {
+               browser.tabs.reload(tab.id);
+            }
+         })
+      }
    })
 
    ENABLE_ALL_PERMISSIONS_BUTTON.addEventListener("click", () =>
