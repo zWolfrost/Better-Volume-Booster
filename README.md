@@ -89,6 +89,7 @@ _Note that any version might include a number of stylistic changes, which are of
 	<br>- Commented leftover debug logs.
 
 - **v1.11.0**:
+<br>- Added a button to restore the global volume multiplier to the default value.
 <br>- Removed the "disable any prompt" option.
 <br>- Local volume multiplier is now domain-specific instead of subdomain-specific.
 <br>- Fixed bug where redundant domains would show up (e.g. `www.example.com` and `example.com`).
