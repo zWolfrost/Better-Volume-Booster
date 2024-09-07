@@ -54,10 +54,10 @@ _Note that any version might include a number of stylistic changes, which are of
 
 - **v1.7.0**:
 <br>- Downgraded to manifest v2, in order to require the `<all_urls>` permission. Functionality is unaffected.
-  - v1.7.1:
-  <br>- Reverted a few stylistic changes from v1.7.0.
-  - v1.7.2:
-  <br>- Removed unnecessary "Block content on any page" permission.
+	- v1.7.1:
+	<br>- Reverted a few stylistic changes from v1.7.0.
+	- v1.7.2:
+	<br>- Removed unnecessary "Block content on any page" permission.
 
 - **v1.8.0**:
 <br>- Reverted to manifest v3, and made the "Access your data for all websites" permission optional. Again.
@@ -68,22 +68,28 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Added an option to add subdomains to the permission prompt' websites.
 <br>- Added a "No media detected" message.
 <br>- Removed permission prompt when no media elements are found on a page.
-  - v1.9.1:
-  <br>- Fixed bug where the disable permission prompt checkbox won't show the actual set state.
-  <br>- Fixed some settings wrong defaults.
-  - v1.9.2:
-  <br>- Fixed bug where the extension would create unnecessary & mute audio streams in the mixer.
-  - v1.9.3:
-  <br>- Fixed bug where the extension would create unnecessary audio streams for idle videos.
+	- v1.9.1:
+	<br>- Fixed bug where the disable permission prompt checkbox won't show the actual set state.
+	<br>- Fixed some settings wrong defaults.
+	- v1.9.2:
+	<br>- Fixed bug where the extension would create unnecessary & mute audio streams in the mixer.
+	- v1.9.3:
+	<br>- Fixed bug where the extension would create unnecessary audio streams for idle videos.
 
 - **v1.10.0**:
 <br>- Added a 500ms interval on which the popup will refresh the found media source domains.
 <br>- Fixed bug where unchecking all websites permissions and asking for them anyway would refresh the page.
 <br>- Fixed bug where the extension would not ask for the iframe source permission when the video is in an iframe.
-  - v1.10.1:
-  <br>- Fixed bug where the permissions checkboxes would not work (removed refresh interval, was a bad idea).
-  <br>- Fixed bug where the extension would ask for "null" permissions.
-  - v1.10.2:
-  <br>- Commented leftover debug logs.
-  <br>- Fixed bug where the extension would parse correctly urls with uncommon protocols.
-  <br>- Marked the option "disable any prompt" as deprecated.
+	- v1.10.1:
+	<br>- Fixed bug where the permissions checkboxes would not work (removed refresh interval, was a bad idea).
+	<br>- Fixed bug where the extension would ask for "null" permissions.
+	- v1.10.2:
+	<br>- Fixed bug where the extension would not correctly parse urls with uncommon protocols.
+	<br>- Marked the option "disable any prompt" as deprecated.
+	<br>- Commented leftover debug logs.
+
+- **v1.11.0**:
+<br>- Removed the "disable any prompt" option.
+<br>- Local volume multiplier is now domain-specific instead of subdomain-specific.
+<br>- Fixed bug where redundant domains would show up (e.g. `www.example.com` and `example.com`).
+<br>- The code is actually somewhat readable now.

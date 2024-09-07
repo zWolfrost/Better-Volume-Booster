@@ -1,61 +1,62 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <link rel="stylesheet" href="style.css">
-      <script src="../scripts/VolumeOptions.js"></script>
-      <script defer src="../scripts/popup.js"></script>
-      <style>
-         body
-         {
-            min-width: 800px;
-            max-width: 800px;
-            user-select: none;
-         }
-      </style>
-   </head>
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="style.css">
+		<script src="VolumeOptions.js"></script>
+		<script defer src="popup.js"></script>
+		<style>
+			body
+			{
+				min-width: 800px;
+				max-width: 800px;
+			}
+		</style>
+	</head>
 
-   <body>
-      <div class="container">
-         <div class="option">
-            <a id="fake-delete-global-volume-multiplier" class="fake"><img src="../assets/trashcan-32.png" width="16px"/></a>
-            <a id="flip-global-sound-mode" class="note beam"><img alt="Flip Global Sound Mode" width="16px"/></a>
+	<body>
+		<div class="container">
+			<div class="option">
+				<a id="restore-global-volume-multiplier" class="restore"><img src="../assets/restore-32.png" alt="Restore Global Volume Multiplier" width="16px" draggable="false"/></a>
+				<a id="flip-global-sound-mode" class="note beam"><img alt="Flip Global Sound Mode" width="16px" draggable="false"/></a>
 
-            <input type="number" id="global-volume-multiplier-counter" min="0" step="1"/>
-            <span class="percent-sign">%</span>
+				<input type="number" id="global-volume-multiplier-counter" min="0" step="1"/>
+				<span class="percent-sign">%</span>
 
-            <input type="range" id="global-volume-multiplier-range" name="global-volume-multiplier-range" min="0" step="5"/>
+				<input type="range" id="global-volume-multiplier-range" name="global-volume-multiplier-range" min="0" step="5"/>
 
-            <label for="global-volume-multiplier-range">Global volume</label>
-         </div>
-         <div class="option">
-            <a id="delete-local-volume-multiplier" class="trash-can"><img src="../assets/trashcan-32.png" alt="Delete Volume Multiplier" width="16px"/></a>
-            <a id="flip-local-sound-mode" class="note beam"><img alt="Flip Local Sound Mode" width="16px"/></a>
+				<label for="global-volume-multiplier-range">Global volume</label>
+			</div>
+			<div class="option">
+				<a id="delete-local-volume-multiplier" class="restore"><img src="../assets/trashcan-32.png" alt="Delete Local Volume Multiplier" width="16px" draggable="false"/></a>
+				<a id="flip-local-sound-mode" class="note beam"><img alt="Flip Local Sound Mode" width="16px" draggable="false"/></a>
 
-            <input type="number" id="local-volume-multiplier-counter" min="0" step="1"/>
-            <span class="percent-sign">%</span>
+				<input type="number" id="local-volume-multiplier-counter" min="0" step="1"/>
+				<span class="percent-sign">%</span>
 
-            <input type="range" id="local-volume-multiplier-range" name="local-volume-multiplier-range" min="0" step="5"/>
+				<input type="range" id="local-volume-multiplier-range" name="local-volume-multiplier-range" min="0" step="5"/>
 
-            <label for="local-volume-multiplier-range"><label id="domain-text" class="url">Local</label> volume</label>
-         </div>
+				<label for="local-volume-multiplier-range"><label id="domain-text" class="url">Local</label> volume</label>
+			</div>
 
-         <div id="media-sources-message" class="option hidden">
-            <div>
-               Did the audio just get muted (or it just didn't get boosted)? If yes, you should probably enable data access permissions for the following domains (or just <a id="enable-all-permissions-button" class="button">enable it for all websites</a> and you won't get prompted ever again):
-            </div>
+			<div id="media-sources-message" class="option hidden">
+				<div>
+					Did the audio just get muted (or was it simply not boosted)?<br>
+					If yes, then you should probably enable data access permission for the following domains<br>
+					(or just <a id="enable-all-permissions-button" class="button">enable it for all websites</a> and you won't get prompted for it ever again):
+				</div>
 
-            <div id="media-sources-container">
-               <button id="ask-permissions-button" class="button">Ask for the selected permissions</button>
+				<div id="media-sources-container">
+					<button id="ask-permissions-button" class="button">Ask for the selected permissions</button>
 
-               <ul id="media-sources-list">
-               </ul>
-            </div>
-         </div>
+					<ul id="media-sources-list">
+					</ul>
+				</div>
+			</div>
 
-         <div id="no-media-detected-message" class="option hidden">
-            No media detected...
-         </div>
-      </div>
-   </body>
+			<div id="no-media-detected-message" class="option hidden">
+				No media detected...
+			</div>
+		</div>
+	</body>
 </html>

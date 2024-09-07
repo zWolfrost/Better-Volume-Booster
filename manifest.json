@@ -1,67 +1,67 @@
 {
-   "manifest_version": 3,
-   "name": "Better Volume Booster",
-   "version": "1.10.2",
+	"manifest_version": 3,
+	"name": "Better Volume Booster",
+	"version": "1.11.0",
 
-   "description": "Volume booster firefox extension that remembers your choices.",
+	"description": "Volume booster firefox extension that remembers your choices.",
 
-   "icons": {
-      "48": "assets/icon-48.png",
-      "96": "assets/icon-96.png"
-   },
+	"icons": {
+		"48": "assets/icon-48.png",
+		"96": "assets/icon-96.png"
+	},
 
-   "action": {
-      "default_popup": "frontend/popup.html"
-   },
+	"action": {
+		"default_popup": "frontend/popup.html"
+	},
 
-   "options_ui": {
-      "page": "frontend/options.html",
-      "browser_style": false
-   },
-
-
-
-   "background": {
-      "scripts": ["scripts/initialize.js"]
-   },
-
-
-   "declarative_net_request": {
-      "rule_resources": [{
-         "id": "crossoriginfix",
-         "enabled": true,
-         "path": "declarativerules/crossoriginfix.json"
-      }]
-   },
+	"options_ui": {
+		"page": "frontend/options.html",
+		"browser_style": false
+	},
 
 
 
-   "content_scripts": [
-      {
-         "matches": [
-            "<all_urls>"
-         ],
-         "js": ["scripts/boost.js"],
-         "run_at": "document_start",
-         "all_frames": true,
-         "match_about_blank": true
-      }
-   ],
+	"background": {
+		"scripts": ["scripts/initialize.js"]
+	},
 
-   "optional_permissions": [
-      "<all_urls>"
-   ],
-   "permissions": [
-      "declarativeNetRequestWithHostAccess",
-      "storage",
-      "scripting"
-   ],
+
+	"declarative_net_request": {
+		"rule_resources": [{
+			"id": "crossoriginfix",
+			"enabled": true,
+			"path": "declarativerules/crossoriginfix.json"
+		}]
+	},
 
 
 
-   "browser_specific_settings": {
-      "gecko": {
-         "id": "VolumeBoosterWithoutDementia@zWolfrost.github.com"
-      }
-   }
+	"content_scripts": [
+		{
+			"matches": [
+				"<all_urls>"
+			],
+			"js": ["scripts/boost.js"],
+			"run_at": "document_start",
+			"all_frames": true,
+			"match_about_blank": true
+		}
+	],
+
+	"optional_permissions": [
+		"<all_urls>"
+	],
+	"permissions": [
+		"declarativeNetRequestWithHostAccess",
+		"storage",
+		"scripting"
+	],
+
+
+
+	"browser_specific_settings": {
+		"gecko": {
+			"id": "VolumeBoosterWithoutDementia@zWolfrost.github.com"
+		}
+	}
 }

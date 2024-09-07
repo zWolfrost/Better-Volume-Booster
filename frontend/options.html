@@ -1,46 +1,41 @@
 <!DOCTYPE html>
 <html lang="en">
-   <head>
-      <meta charset="UTF-8">
-      <link rel="stylesheet" href="style.css">
-      <script src="../scripts/VolumeOptions.js"></script>
-      <script defer src="../scripts/options.js"></script>
-   </head>
+	<head>
+		<meta charset="UTF-8">
+		<link rel="stylesheet" href="style.css">
+		<script src="VolumeOptions.js"></script>
+		<script defer src="options.js"></script>
+	</head>
 
-   <body>
-      <div class="container">
-         <div class="option">
-            <input type="number" id="volume-multiplier-limit-counter" min="0" step="1"/>
-            <span class="percent-sign">%</span>
+	<body>
+		<div class="container">
+			<div class="option">
+				<input type="number" id="volume-multiplier-limit-counter" min="0" step="1"/>
+				<span class="percent-sign">%</span>
 
-            <input type="range" id="volume-multiplier-limit-range" name="volume-multiplier-limit-range" step="5"/>
-            <label for="volume-multiplier-limit-range" class="hide">Volume multiplier limit</label>
-         </div>
+				<input type="range" id="volume-multiplier-limit-range" name="volume-multiplier-limit-range" step="5"/>
+				<label for="volume-multiplier-limit-range" class="hide">Volume multiplier limit</label>
+			</div>
 
-         <div class="option centered">
-            <label for="show-volume-multiplier-select">Show only a specific volume multiplier (if possible):</label>
-            <select id="show-volume-multiplier-select" name="show-volume-multiplier-select">
-               <option value="both">Show both</option>
-               <option value="global">Show only global</option>
-               <option value="local">Show only local</option>
-            </select>
-         </div>
+			<div class="option centered">
+				<label for="show-volume-multiplier-select">Show only a specific volume multiplier (when possible):</label>
+				<select id="show-volume-multiplier-select" name="show-volume-multiplier-select">
+					<option value="both">Show both</option>
+					<option value="global">Show only global</option>
+					<option value="local">Show only local</option>
+				</select>
+			</div>
 
-         <div class="option">
-            <input type="checkbox" id="disable-any-prompt-checkbox" name="disable-any-prompt-checkbox"/>
-            <label for="disable-any-prompt-checkbox">Disable any prompt (not recommended, will remove)</label>
-         </div>
+			<div class="option">
+				<input type="checkbox" id="include-permission-subdomain-checkbox" name="include-permission-subdomain-checkbox"/>
+				<label for="include-permission-subdomain-checkbox">Include websites subdomain in the permission prompt (when possible)</label>
+			</div>
+		</div>
 
-         <div class="option">
-            <input type="checkbox" id="include-permission-subdomain-checkbox" name="include-permission-subdomain-checkbox"/>
-            <label for="include-permission-subdomain-checkbox">Include websites subdomain in the permission prompt when possible</label>
-         </div>
-      </div>
-
-      <footer>
-         <button id="reset-storage-button">
-            CLEAR ALL STORAGE AND RESET ALL SETTINGS TO DEFAULT
-         </button>
-      </footer>
-   </body>
+		<footer>
+			<button id="reset-storage-button" class="button">
+				CLEAR ALL STORAGE AND RESET ALL SETTINGS TO DEFAULT
+			</button>
+		</footer>
+	</body>
 </html>
