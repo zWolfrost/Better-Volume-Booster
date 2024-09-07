@@ -93,3 +93,5 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Local volume multiplier is now domain-specific instead of subdomain-specific.
 <br>- Fixed bug where redundant domains would show up (e.g. `www.example.com` and `example.com`).
 <br>- The code is actually somewhat readable now.
+	- v1.11.1:
+	<br>- Fixed inclusion of garbage files in the extension.
