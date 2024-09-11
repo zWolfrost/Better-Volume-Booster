@@ -3,8 +3,8 @@
 	<head>
 		<meta charset="UTF-8">
 		<link rel="stylesheet" href="style.css">
-		<script src="VolumeOptions.js"></script>
-		<script defer src="options.js"></script>
+		<script src="../scripts/VolumeOptions.js"></script>
+		<script defer src="../scripts/options.js"></script>
 	</head>
 
 	<body>
@@ -17,7 +17,7 @@
 				<label for="volume-multiplier-limit-range" class="hide">Volume multiplier limit</label>
 			</div>
 
-			<div class="option centered">
+			<div class="option">
 				<label for="show-volume-multiplier-select">Show only a specific volume multiplier (when possible):</label>
 				<select id="show-volume-multiplier-select" name="show-volume-multiplier-select">
 					<option value="both">Show both</option>
@@ -27,15 +27,24 @@
 			</div>
 
 			<div class="option">
-				<input type="checkbox" id="include-permission-subdomain-checkbox" name="include-permission-subdomain-checkbox"/>
-				<label for="include-permission-subdomain-checkbox">Include websites subdomain in the permission prompt (when possible)</label>
+				<label for="send-cookies-select">Send cookies in the media requests:</label>
+				<select id="send-cookies-select" name="send-cookies-select">
+					<option value="always">Always (not recommended!)</option>
+					<option value="ask">Ask</option>
+					<option value="never">Never</option>
+				</select>
 			</div>
+
+			<div class="option">
+				<input type="checkbox" id="include-permission-subdomain-checkbox" name="include-permission-subdomain-checkbox"/>
+				<label for="include-permission-subdomain-checkbox">Include website subdomains in the permission prompt (when possible)</label>
+			</div>
+
+			<button id="more-information-button" class="button" style="margin: 5px; float: right;">More information...</button>
 		</div>
 
 		<footer>
-			<button id="reset-storage-button" class="button">
-				CLEAR ALL STORAGE AND RESET ALL SETTINGS TO DEFAULT
-			</button>
+			<button id="reset-storage-button" class="button">RESET ALL SETTINGS TO DEFAULT</button>
 		</footer>
 	</body>
 </html>

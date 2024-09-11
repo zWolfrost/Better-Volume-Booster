@@ -1,10 +1,6 @@
 // GETTING ACTUAL DOMAIN NAME (BYPASSING IFRAME'S)
-function getDomain() {
-	const url = (window.self === window.top) ? document.URL : document.referrer;
-	return (url == "") ? "blank" : new URL(url).hostname.split(".").slice(-2).join(".");
-}
-
-const domain = getDomain();
+const url = (window.self === window.top) ? document.URL : document.referrer;
+const domain = (url == "") ? "blank" : new URL(url).hostname;
 
 const DEBUG = false && (domain !== "blank");
 if (DEBUG) console.log(domain);
@@ -85,6 +81,11 @@ async function onMediaElementCreation(el) {
 		if (DEBUG) console.log(el);
 
 		el.classList.add(BOOSTED_CLASSNAME);
+
+		/* if (el.readyState <= 1) {
+			await new Promise(resolve => el.addEventListener("loadedmetadata", resolve, {once: true}));
+		} */
+
 		el.crossOrigin = "anonymous";
 
 		if (el.paused) {
@@ -106,7 +107,7 @@ async function onMediaElementCreation(el) {
 function updateVolume() {
 	if (audio) {
 		browser.storage.local.get().then(storage => {
-			const domainGlobalFallback = domain in storage ? domain : "global";
+			const domainGlobalFallback = storage?.[domain]?.enabled ? domain : "global";
 
 			audio.gain = storage[domainGlobalFallback].volumeMultiplierPercent / 100;
 			audio.mono = storage[domainGlobalFallback].mono;
@@ -117,3 +118,10 @@ function updateVolume() {
 }
 
 browser.storage.local.onChanged.addListener(changes => updateVolume());
+
+
+
+// SENDING DOMAIN TO BACKGROUND SCRIPT
+if (domain !== "blank") {
+	browser.runtime.sendMessage({domain: domain});
+}

@@ -1,52 +1,43 @@
 {
 	"manifest_version": 3,
 	"name": "Better Volume Booster",
-	"version": "1.11.1",
-
+	"version": "1.12.0",
 	"description": "Volume booster firefox extension that remembers your choices.",
 
 	"icons": {
-		"48": "assets/icon-48.png",
-		"96": "assets/icon-96.png"
+		"48": "images/icon-48.png",
+		"96": "images/icon-96.png"
 	},
 
 	"action": {
-		"default_popup": "frontend/popup.html"
+		"default_popup": "pages/popup.html"
 	},
-
 	"options_ui": {
-		"page": "frontend/options.html",
+		"page": "pages/options.html",
 		"browser_style": false
 	},
-
-
-
 	"background": {
-		"scripts": ["scripts/initialize.js"]
+		"scripts": ["scripts/background.js"]
 	},
-
-
-	"declarative_net_request": {
-		"rule_resources": [{
-			"id": "crossoriginfix",
-			"enabled": true,
-			"path": "declarativerules/crossoriginfix.json"
-		}]
-	},
-
-
-
 	"content_scripts": [
 		{
 			"matches": [
 				"<all_urls>"
 			],
-			"js": ["scripts/boost.js"],
+			"js": ["scripts/content.js"],
 			"run_at": "document_start",
 			"all_frames": true,
 			"match_about_blank": true
 		}
 	],
+
+	"declarative_net_request": {
+		"rule_resources": [{
+			"id": "crossoriginfix",
+			"enabled": true,
+			"path": "dnrrules/crossoriginfix.json"
+		}]
+	},
 
 	"optional_permissions": [
 		"<all_urls>"
@@ -54,10 +45,9 @@
 	"permissions": [
 		"declarativeNetRequestWithHostAccess",
 		"storage",
-		"scripting"
+		"scripting",
+		"cookies"
 	],
-
-
 
 	"browser_specific_settings": {
 		"gecko": {

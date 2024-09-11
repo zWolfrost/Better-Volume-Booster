@@ -40,8 +40,10 @@ select:hover:not(:active) {
 }
 
 ul {
-	padding: 15px;
 	margin: 0px;
+}
+ul + ul {
+	padding: 15px;
 }
 
 
@@ -107,9 +109,9 @@ input[type="range"].disabled {
 
 
 
-#media-sources-message {
+.message {
 	display: block;
-	padding: 20px 20px 10px 20px;
+	padding: 20px;
 	text-align: center;
 }
 #media-sources-container {
@@ -119,7 +121,6 @@ input[type="range"].disabled {
 	flex-direction: row;
 	text-align: left;
 	gap: 20px;
-	padding: 0px 20px 0px 20px;
 }
 #media-sources-list .url {
 	max-width: 500px;
@@ -188,10 +189,10 @@ a.note > img {
 	filter: invert(85%);
 }
 a.quaver > img {
-	content: url("../assets/quaver-32.png");
+	content: url("../images/quaver-32.png");
 }
 a.beam > img {
-	content: url("../assets/beam-32.png");
+	content: url("../images/beam-32.png");
 }
 a.note.disabled > img {
 	filter: invert(26%) sepia(6%) saturate(444%) hue-rotate(202deg) brightness(94%) contrast(85%);
@@ -219,10 +220,10 @@ a.fake {
 
 
 @keyframes shake {
-	0% {transform: rotate(12deg);}
-	25% {transform: rotate(-12deg);}
-	50% {transform: rotate(8deg);}
-	75% {transform: rotate(-8deg);}
+	0% {transform: rotate(16deg);}
+	25% {transform: rotate(-16deg);}
+	50% {transform: rotate(12deg);}
+	75% {transform: rotate(-12deg);}
 	100% {transform: rotate(0deg);}
 }
 @keyframes bounce {

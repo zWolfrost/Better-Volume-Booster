@@ -11,6 +11,8 @@ const DELETE_LOCAL_VOLUME_OPTIONS = document.getElementById("delete-local-volume
 const RESTORE_GLOBAL_VOLUME_OPTIONS = document.getElementById("restore-global-volume-multiplier");
 const MEDIA_SOURCES_MESSAGE = document.getElementById("media-sources-message");
 const MEDIA_SOURCES_LIST = document.getElementById("media-sources-list");
+const SEND_COOKIES_MESSAGE = document.getElementById("send-cookies-message");
+const SEND_COOKIES_CHECKBOX = document.getElementById("send-cookies-checkbox");
 const ASK_PERMISSIONS_BUTTON = document.getElementById("ask-permissions-button");
 const ENABLE_ALL_PERMISSIONS_BUTTON = document.getElementById("enable-all-permissions-button");
 const NO_MEDIA_DETECTED_MESSAGE = document.getElementById("no-media-detected-message");
@@ -116,8 +118,10 @@ function addPermissionToMediaSourcesList(domain)
 	function setLocalVolumeOptions() {
 		browser.storage.local.set({
 			[domain]: {
+				enabled: localVolumeOptions.enabled,
 				volumeMultiplierPercent: +localVolumeOptions.inputs[0].value,
-				mono: localMonoNoteFlipper.isMono
+				mono: localMonoNoteFlipper.isMono,
+				sendCookiesInMediaRequests: SEND_COOKIES_CHECKBOX.checked
 			},
 		})
 	}
@@ -126,7 +130,7 @@ function addPermissionToMediaSourcesList(domain)
 		const RANGE_TOTAL_STEPS = 100;
 
 		browser.storage.local.get().then(storage => {
-			const localIsAvailable = domain && storage[domain];
+			const localIsAvailable = domain && storage?.[domain]?.enabled;
 			const domainGlobalFallback = localIsAvailable ? domain : "global";
 
 			globalVolumeOptions.enabled = !localIsAvailable;
@@ -147,6 +151,12 @@ function addPermissionToMediaSourcesList(domain)
 
 			GLOBAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(GLOBAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
 			LOCAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(LOCAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
+
+
+			if (storage.options.sendCookiesInMediaRequests == "ask") {
+				SEND_COOKIES_CHECKBOX.checked = storage[domain]?.sendCookiesInMediaRequests ?? false;
+				SEND_COOKIES_MESSAGE.classList.remove("hidden");
+			}
 
 			if (domain) {
 				DOMAIN_TEXT.innerText = domain;
@@ -180,7 +190,6 @@ function addPermissionToMediaSourcesList(domain)
 						try {
 							let hostname = new URL(new URL(el.currentSrc ?? el.src).origin).hostname;
 							sourceDomains.push(hostname);
-							console.log(el)
 						}
 						catch {}
 					}
@@ -199,8 +208,8 @@ function addPermissionToMediaSourcesList(domain)
 			let set = new Set(arr);
 
 			for (let domain of set) {
-				for (let otherDomain of set) {
-					if (domain.includes(otherDomain) && domain !== otherDomain) {
+				for (let domain2 of set) {
+					if (domain.includes(domain2) && domain !== domain2) {
 						set.delete(domain);
 					}
 				}
@@ -216,13 +225,13 @@ function addPermissionToMediaSourcesList(domain)
 			return arr.filter((_, i) => mediaSourcesNeededBooleans[i])
 		}
 
-		if (hostname) {
+		if (domain) {
 			// get the sources domains of all the media elements in the page
 			const mediaSourcesDomains = await getMediaSourcesDomains();
 
 			if (mediaSourcesDomains.length > 0) {
 				// get the essential domains (no duplicates, no subdomains, etc.)
-				const mediaSourcesEssential = getEssentialDomains([hostname, ...mediaSourcesDomains], includeSubdomains);
+				const mediaSourcesEssential = getEssentialDomains([domain, ...mediaSourcesDomains], includeSubdomains);
 
 				// get the domains that don't already have permissions
 				const mediaSourcesNeeded = await getNeededDomains(mediaSourcesEssential);
@@ -247,15 +256,9 @@ function addPermissionToMediaSourcesList(domain)
 	// get the current url
 	const tab = await getCurrentTab();
 
-	let hostname, domain;
-	try {
-		hostname = new URL(tab.url).hostname;
-		domain = hostname.split(".").slice(-2).join(".");
-	}
-	catch {
-		hostname = null;
-		domain = null;
-	}
+	let domain;
+	try { domain = new URL(tab.url).hostname; }
+	catch { domain = null; }
 
 
 	const localVolumeOptions = new VolumeOptions([LOCAL_VOLUME_MULTIPLIER_COUNTER, LOCAL_VOLUME_MULTIPLIER_RANGE], value => {
@@ -275,7 +278,7 @@ function addPermissionToMediaSourcesList(domain)
 
 
 	const localMonoNoteFlipper = new NoteFlipper(FLIP_LOCAL_SOUND_MODE, () => {
-		animate(FLIP_LOCAL_SOUND_MODE, "bounce", 0.1);
+		animate(FLIP_LOCAL_SOUND_MODE.querySelector("img"), "bounce", 0.2);
 
 		localVolumeOptions.enabled = true;
 		globalVolumeOptions.enabled = false;
@@ -284,7 +287,7 @@ function addPermissionToMediaSourcesList(domain)
 	})
 
 	const globalMonoNoteFlipper = new NoteFlipper(FLIP_GLOBAL_SOUND_MODE, isMono => {
-		animate(FLIP_GLOBAL_SOUND_MODE, "bounce", 0.1);
+		animate(FLIP_GLOBAL_SOUND_MODE.querySelector("img"), "bounce", 0.2);
 
 		if (!localVolumeOptions.enabled) {
 			localMonoNoteFlipper.isMono = isMono;
@@ -295,17 +298,20 @@ function addPermissionToMediaSourcesList(domain)
 
 
 	DELETE_LOCAL_VOLUME_OPTIONS.addEventListener("click", () => {
-		globalVolumeOptions.enabled = true;
+		animate(DELETE_LOCAL_VOLUME_OPTIONS.querySelector("img"), "shake", 0.4);
+
 		localVolumeOptions.enabled = false;
+		globalVolumeOptions.enabled = true;
 
 		localVolumeOptions.forEachInput(input => input.value = globalVolumeOptions.inputs[0].value);
-
 		localMonoNoteFlipper.isMono = globalMonoNoteFlipper.isMono;
 
-		browser.storage.local.remove(domain);
+		setLocalVolumeOptions();
 	})
 
 	RESTORE_GLOBAL_VOLUME_OPTIONS.addEventListener("click", () => {
+		animate(RESTORE_GLOBAL_VOLUME_OPTIONS.querySelector("img"), "bounce", 0.2);
+
 		globalVolumeOptions.forEachInput(input => input.value = 100);
 		globalMonoNoteFlipper.isMono = false;
 
@@ -344,6 +350,13 @@ function addPermissionToMediaSourcesList(domain)
 				window.close();
 			}
 		})
+	})
+
+
+	SEND_COOKIES_CHECKBOX.addEventListener("change", () => {
+		setLocalVolumeOptions();
+		browser.tabs.reload(tab.id);
+		window.close();
 	})
 
 
