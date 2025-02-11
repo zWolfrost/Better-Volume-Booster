@@ -78,3 +78,7 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Added a way to send cookies in the media request, to fix some websites (e.g. TikTok).
 <br>- Added a "More information" button in the options.
 <br>- Reverted to using a subdomain-specific local volume multiplier.
+
+- **v1.13.0**:
+<br>- Added a way to blacklist a subdomain in the extension context menu.
+<br>- Moved the "send cookies in the media request" option to the context menu.

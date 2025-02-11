@@ -1,6 +1,5 @@
 html, body {
 	margin: 0;
-	height: 100%;
 	display: flex;
 	flex-direction: column;
 	user-select: none;
@@ -21,8 +20,7 @@ header {
 }
 
 footer {
-	margin: auto 0px 5px 0px;
-	text-align: center;
+	margin-top: 30px;
 }
 
 
@@ -97,6 +95,7 @@ input[type="range"].disabled {
 
 
 .button {
+	font-family: inherit;
 	cursor: pointer;
 	border-radius: 5px;
 	background-color: #403d4b;
@@ -132,8 +131,6 @@ input[type="range"].disabled {
 }
 #enable-all-permissions-button {
 	padding: 0px 4px 0px 4px;
-	font-weight: bold;
-	font-family: arial;
 }
 #no-media-detected-message {
 	display: block;

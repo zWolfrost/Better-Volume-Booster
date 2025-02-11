@@ -1,6 +1,6 @@
 "use strict"
 
-const DOMAIN_TEXT = document.getElementById("domain-text");
+const HOSTNAME_TEXT = document.getElementById("hostname-text");
 const GLOBAL_VOLUME_MULTIPLIER_RANGE = document.getElementById("global-volume-multiplier-range");
 const GLOBAL_VOLUME_MULTIPLIER_COUNTER = document.getElementById("global-volume-multiplier-counter");
 const LOCAL_VOLUME_MULTIPLIER_RANGE = document.getElementById("local-volume-multiplier-range");
@@ -11,8 +11,6 @@ const DELETE_LOCAL_VOLUME_OPTIONS = document.getElementById("delete-local-volume
 const RESTORE_GLOBAL_VOLUME_OPTIONS = document.getElementById("restore-global-volume-multiplier");
 const MEDIA_SOURCES_MESSAGE = document.getElementById("media-sources-message");
 const MEDIA_SOURCES_LIST = document.getElementById("media-sources-list");
-const SEND_COOKIES_MESSAGE = document.getElementById("send-cookies-message");
-const SEND_COOKIES_CHECKBOX = document.getElementById("send-cookies-checkbox");
 const ASK_PERMISSIONS_BUTTON = document.getElementById("ask-permissions-button");
 const ENABLE_ALL_PERMISSIONS_BUTTON = document.getElementById("enable-all-permissions-button");
 const NO_MEDIA_DETECTED_MESSAGE = document.getElementById("no-media-detected-message");
@@ -81,18 +79,19 @@ function animate(element, name, seconds=1, mode="ease-in-out", repetitions=1, re
 }
 
 
-/** add a domain to the media sources list with a checkbox */
-function addPermissionToMediaSourcesList(domain)
+/** add a hostname to the media sources list with a checkbox */
+function addPermissionToMediaSourcesList(hostname)
 {
 	const chkbox = document.createElement("input");
 	chkbox.type = "checkbox";
 	chkbox.checked = true;
-	chkbox.name = domain;
+	chkbox.id = hostname;
+	chkbox.name = hostname;
 	chkbox.classList.add("media-source-checkbox");
 
 	const label = document.createElement("label");
-	label.innerText = domain;
-	label.for = domain;
+	label.innerText = hostname;
+	label.htmlFor = hostname;
 	label.classList.add("url");
 
 	const li = document.createElement("li");
@@ -112,32 +111,32 @@ function addPermissionToMediaSourcesList(domain)
 			global: {
 				volumeMultiplierPercent: +globalVolumeOptions.inputs[0].value,
 				mono: globalMonoNoteFlipper.isMono
-			},
+			}
 		})
 	}
 	function setLocalVolumeOptions() {
-		browser.storage.local.set({
-			[domain]: {
+		browser.storage.local.get(hostname).then(storage => browser.storage.local.set({
+			[hostname]: {
+				...storage?.[hostname],
 				enabled: localVolumeOptions.enabled,
 				volumeMultiplierPercent: +localVolumeOptions.inputs[0].value,
-				mono: localMonoNoteFlipper.isMono,
-				sendCookiesInMediaRequests: SEND_COOKIES_CHECKBOX.checked
-			},
-		})
+				mono: localMonoNoteFlipper.isMono
+			}
+		}))
 	}
 
 	function refreshPopup() {
 		const RANGE_TOTAL_STEPS = 100;
 
 		browser.storage.local.get().then(storage => {
-			const localIsAvailable = domain && storage?.[domain]?.enabled;
-			const domainGlobalFallback = localIsAvailable ? domain : "global";
+			const localIsAvailable = hostname && storage?.[hostname]?.enabled;
+			const hostnameGlobalFallback = localIsAvailable ? hostname : "global";
 
 			globalVolumeOptions.enabled = !localIsAvailable;
 			localVolumeOptions.enabled = localIsAvailable;
 
 			globalMonoNoteFlipper.isMono = storage.global.mono;
-			localMonoNoteFlipper.isMono = storage[domainGlobalFallback].mono;
+			localMonoNoteFlipper.isMono = storage[hostnameGlobalFallback].mono;
 
 			globalVolumeOptions.forEachInput(input => {
 				input.max = storage.options.volumeMultiplierPercentLimit;
@@ -146,20 +145,15 @@ function addPermissionToMediaSourcesList(domain)
 
 			localVolumeOptions.forEachInput(input => {
 				input.max = storage.options.volumeMultiplierPercentLimit;
-				input.value = storage[domainGlobalFallback].volumeMultiplierPercent;
+				input.value = storage[hostnameGlobalFallback].volumeMultiplierPercent;
 			})
 
 			GLOBAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(GLOBAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
 			LOCAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(LOCAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
 
 
-			if (storage.options.sendCookiesInMediaRequests == "ask") {
-				SEND_COOKIES_CHECKBOX.checked = storage[domain]?.sendCookiesInMediaRequests ?? false;
-				SEND_COOKIES_MESSAGE.classList.remove("hidden");
-			}
-
-			if (domain) {
-				DOMAIN_TEXT.innerText = domain;
+			if (hostname && !(storage?.[hostname]?.excluded ?? false)) {
+				HOSTNAME_TEXT.innerText = hostname;
 
 				switch (storage.options.showVolumeMultiplier) {
 					case "both": syncRangesWidths(); break;
@@ -168,75 +162,75 @@ function addPermissionToMediaSourcesList(domain)
 				}
 
 				// prompt for media sources permissions
-				promptMediaSourcesDomains({ includeSubdomains: storage.options.includePermissionSubdomains })
+				promptMediaSourcesHostnames({ includeSubdomains: storage.options.specifyPermissionSubdomains })
 			}
 			else {
-				// hide the local volume options if there is no domain for some reason (e.g. about:blank)
+				// hide the local volume options if there is no hostname for some reason (e.g. about:blank)
 				hideLocalOptions();
 			}
 		})
 	}
-	async function promptMediaSourcesDomains({ includeSubdomains }) {
-		async function getMediaSourcesDomains() {
+	async function promptMediaSourcesHostnames({ includeSubdomains }) {
+		async function getMediaSourcesHostnames() {
 			let mediaSourcesResult = await browser.scripting.executeScript({
 				target: {tabId: tab.id, allFrames: true},
 				/* injectImmediately: true, */
 				func: () => {
-					let sourceDomains = [];
+					let sourceHostnames = [];
 
 					const foundElements = document.querySelectorAll("video, audio, iframe");
 
 					for (let el of foundElements) {
 						try {
 							let hostname = new URL(new URL(el.currentSrc ?? el.src).origin).hostname;
-							sourceDomains.push(hostname);
+							sourceHostnames.push(hostname);
 						}
 						catch {}
 					}
 
-					return sourceDomains;
+					return sourceHostnames;
 				}
 			})
 
 			return mediaSourcesResult.map(res => res.result).flat().filter(el => el);
 		}
-		function getEssentialDomains(arr, includeSubdomains=true) {
+		function getEssentialHostnames(arr, includeSubdomains=true) {
 			if (!includeSubdomains) {
-				arr = arr.map(domain => domain.split(".").slice(-2).join("."));
+				arr = arr.map(hostname => hostname.split(".").slice(-2).join("."));
 			}
 
 			let set = new Set(arr);
 
-			for (let domain of set) {
-				for (let domain2 of set) {
-					if (domain.includes(domain2) && domain !== domain2) {
-						set.delete(domain);
+			for (let hostname of set) {
+				for (let hostname2 of set) {
+					if (hostname.includes(hostname2) && hostname !== hostname2) {
+						set.delete(hostname);
 					}
 				}
 			}
 
 			return Array.from(set);
 		}
-		async function getNeededDomains(arr) {
-			let isGrantedDomain = domain => browser.permissions.contains({ origins: [`*://*.${domain}/*`] });
+		async function getNeededHostnames(arr) {
+			let isGrantedHostname = hostname => browser.permissions.contains({ origins: [`*://*.${hostname}/*`] });
 
-			const mediaSourcesNeededBooleans = await Promise.all( arr.map( domain => isGrantedDomain(domain).then(res => !res) ) );
+			const mediaSourcesNeededBooleans = await Promise.all( arr.map( hostname => isGrantedHostname(hostname).then(res => !res) ) );
 
 			return arr.filter((_, i) => mediaSourcesNeededBooleans[i])
 		}
 
-		if (domain) {
-			// get the sources domains of all the media elements in the page
-			const mediaSourcesDomains = await getMediaSourcesDomains();
+		if (hostname) {
+			// get the sources hostnames of all the media elements in the page
+			const mediaSourcesHostnames = await getMediaSourcesHostnames();
 
-			if (mediaSourcesDomains.length > 0) {
-				// get the essential domains (no duplicates, no subdomains, etc.)
-				const mediaSourcesEssential = getEssentialDomains([domain, ...mediaSourcesDomains], includeSubdomains);
+			if (mediaSourcesHostnames.length > 0) {
+				// get the essential hostnames (no duplicates, no subdomains, etc.)
+				const mediaSourcesEssential = getEssentialHostnames([hostname, ...mediaSourcesHostnames], includeSubdomains);
 
-				// get the domains that don't already have permissions
-				const mediaSourcesNeeded = await getNeededDomains(mediaSourcesEssential);
+				// get the hostnames that don't already have permissions
+				const mediaSourcesNeeded = await getNeededHostnames(mediaSourcesEssential);
 
-				// if there are domains that need permissions, show the message
+				// if there are hostnames that need permissions, show the message
 				if (mediaSourcesNeeded.length > 0) {
 					MEDIA_SOURCES_LIST.innerHTML = "";
 
@@ -256,9 +250,9 @@ function addPermissionToMediaSourcesList(domain)
 	// get the current url
 	const tab = await getCurrentTab();
 
-	let domain;
-	try { domain = new URL(tab.url).hostname; }
-	catch { domain = null; }
+	let hostname;
+	try { hostname = new URL(tab.url).hostname; }
+	catch { hostname = null; }
 
 
 	const localVolumeOptions = new VolumeOptions([LOCAL_VOLUME_MULTIPLIER_COUNTER, LOCAL_VOLUME_MULTIPLIER_RANGE], value => {
@@ -350,13 +344,6 @@ function addPermissionToMediaSourcesList(domain)
 				window.close();
 			}
 		})
-	})
-
-
-	SEND_COOKIES_CHECKBOX.addEventListener("change", () => {
-		setLocalVolumeOptions();
-		browser.tabs.reload(tab.id);
-		window.close();
 	})
 
 

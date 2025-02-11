@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Better Volume Booster",
-	"version": "1.12.0",
+	"version": "1.13.0",
 	"description": "Volume booster firefox extension that remembers your choices.",
 
 	"icons": {
@@ -31,14 +31,6 @@
 		}
 	],
 
-	"declarative_net_request": {
-		"rule_resources": [{
-			"id": "crossoriginfix",
-			"enabled": true,
-			"path": "dnrrules/crossoriginfix.json"
-		}]
-	},
-
 	"optional_permissions": [
 		"<all_urls>"
 	],
@@ -46,7 +38,9 @@
 		"declarativeNetRequestWithHostAccess",
 		"storage",
 		"scripting",
-		"cookies"
+		"cookies",
+		"contextMenus",
+		"activeTab"
 	],
 
 	"browser_specific_settings": {
