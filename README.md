@@ -11,16 +11,19 @@ Clicking the note button will set the sound mode to either mono (♪) or stereo 
 
 You can also go to the add-on's option page to change the hard volume boost limit to any value between 100% and 1000% (as well as other stuff). This is useful if you want to prevent yourself from accidentally setting the volume to a very high value and consequently blowing your ears off. The default is 500%.
 
-There are a few per-subdomain options visible in the context menu when you right-click the extension icon while on a page:
+A few additional per-subdomain options can be viewed by right-clicking the extension icon while being on a webpage.
 - You can blacklist the current subdomain from audio boosting as a last resort, if the extension breaks a specific website.
 - You can send cookies to media requests to fix some specific websites that need them and will otherwise break (e.g. TikTok).
 
 _I am not responsible for any damage to your ears or headphones that may result from the add-on use. Use the add-on responsibly and ensure your headphones can handle the boosted volume levels._
 
 ## Availability
-Available on the [Firefox Add-ons site](https://addons.mozilla.org/firefox/addon/better-volume-booster/) (AMO)
+Available on the [Firefox Add-ons site](https://addons.mozilla.org/firefox/addon/better-volume-booster/)
 <br>
 or directly on this GitHub repository's [releases](https://github.com/zWolfrost/Better-Volume-Booster/releases) page.
 
 ## Changelog
 You can see the changes made in each version in the [CHANGELOG.md](CHANGELOG.md) file.
+
+## Credits
+<a href="https://www.flaticon.com/free-icons/unmute" title="unmute icons">Unmute icons created by Ian Anandara - Flaticon</a>

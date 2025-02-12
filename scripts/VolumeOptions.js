@@ -50,3 +50,23 @@ class VolumeOptions {
 		return parsed;
 	}
 }
+
+class NoteFlipper {
+	constructor(button, callback) {
+		this.button = button;
+
+		this.button.addEventListener("click", () => {
+			this.isMono = !this.isMono;
+
+			callback(this.isMono);
+		})
+	}
+
+	get isMono() {
+		return this.button.classList.contains("quaver");
+	}
+	set isMono(mono) {
+		this.button.classList.remove("quaver", "beam");
+		this.button.classList.add(mono ? "quaver" : "beam");
+	}
+}

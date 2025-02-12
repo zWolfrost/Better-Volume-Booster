@@ -20,7 +20,7 @@ header {
 }
 
 footer {
-	margin-top: 30px;
+	margin-top: 20px;
 }
 
 
@@ -76,12 +76,8 @@ input[type="range"].disabled {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
-	min-height: 24px;
 
 	padding: 5px;
-	padding-top: 5px;
-	padding-right: 8px;
-	margin: 5px;
 	border-radius: 5px;
 	background-color: #2a2933;
 	gap: 10px;
@@ -89,8 +85,9 @@ input[type="range"].disabled {
 .option.centered {
 	justify-content: center;
 }
-.option.single-option {
-	margin: 0px;
+.option:not(.hidden) ~ .option, .option:has(~ .option:not(.hidden))
+{
+	margin: 5px;
 }
 
 
@@ -123,19 +120,6 @@ input[type="range"].disabled {
 }
 #media-sources-list .url {
 	max-width: 500px;
-}
-#ask-permissions-button {
-	padding: 5px;
-	font-weight: bold;
-	font-size: 15px;
-}
-#enable-all-permissions-button {
-	padding: 0px 4px 0px 4px;
-}
-#no-media-detected-message {
-	display: block;
-	text-align: center;
-	padding-top: 10px;
 }
 
 

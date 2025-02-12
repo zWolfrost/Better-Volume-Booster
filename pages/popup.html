@@ -43,21 +43,25 @@
 				<div>
 					Did the audio just get muted (or was it simply not boosted)?<br>
 					If yes, then you should probably enable data access permission for the following domains<br>
-					(or just <a id="enable-all-permissions-button" class="button">enable it for all websites</a> and you won't get prompted for it ever again):
+					(or just <a id="enable-all-permissions-button" class="button" style="padding: 0px 4px 0px 4px;">enable it for all websites</a> and you won't get prompted for it ever again):
 				</div>
 
 				<br>
 
 				<div id="media-sources-container">
-					<button id="ask-permissions-button" class="button">Ask for the selected permissions</button>
+					<button id="ask-permissions-button" class="button" style="padding: 5px; font-weight: bold; font-size: 15px;">Ask for the selected permissions</button>
 
 					<ul id="media-sources-list">
 					</ul>
 				</div>
 			</div>
 
-			<div id="no-media-detected-message" class="option hidden">
+			<div id="no-media-detected-message" class="option message hidden">
 				No media detected...
+			</div>
+
+			<div id="excluded-hostname-message" class="option message hidden">
+				This website was excluded from the extension's functionality.
 			</div>
 		</div>
 	</body>

@@ -5,8 +5,9 @@
 	"description": "Volume booster firefox extension that remembers your choices.",
 
 	"icons": {
-		"48": "images/icon-48.png",
-		"96": "images/icon-96.png"
+		"48": "images/icon-512.png",
+		"128": "images/icon-512.png",
+		"512": "images/icon-512.png"
 	},
 
 	"action": {
@@ -39,8 +40,7 @@
 		"storage",
 		"scripting",
 		"cookies",
-		"contextMenus",
-		"activeTab"
+		"contextMenus"
 	],
 
 	"browser_specific_settings": {
