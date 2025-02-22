@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 const HOSTNAME_TEXT = document.getElementById("hostname-text");
 const GLOBAL_VOLUME_MULTIPLIER_RANGE = document.getElementById("global-volume-multiplier-range");
@@ -17,44 +17,6 @@ const NO_MEDIA_DETECTED_MESSAGE = document.getElementById("no-media-detected-mes
 const EXCLUDED_HOSTNAME_MESSAGE = document.getElementById("excluded-hostname-message");
 
 
-function animate(element, name, seconds=1, mode="ease-in-out", repetitions=1, reset=true) {
-	return new Promise(resolve => {
-		if (reset == true && element.style.animationName === name) {
-			element.style.animation = "none";
-			element.offsetHeight;
-			element.style.animation = "none";
-		}
-
-		element.style.animation = `${name} ${seconds}s ${mode} ${repetitions}`;
-
-		element.addEventListener("animationend", function() {
-			element.style.animation = "none";
-			resolve();
-		}, {once: true});
-	})
-}
-
-function addPermissionToMediaSourcesList(mediaHostname)
-{
-	const chkbox = document.createElement("input");
-	chkbox.type = "checkbox";
-	chkbox.checked = true;
-	chkbox.id = mediaHostname;
-	chkbox.name = mediaHostname;
-	chkbox.classList.add("media-source-checkbox");
-
-	const label = document.createElement("label");
-	label.innerText = mediaHostname;
-	label.htmlFor = mediaHostname;
-	label.classList.add("url");
-
-	const li = document.createElement("li");
-	li.appendChild(chkbox);
-	li.appendChild(label);
-	MEDIA_SOURCES_LIST.appendChild(li);
-}
-
-
 let currentTabId;
 let currentHostname;
 
@@ -64,79 +26,57 @@ let globalMonoNoteFlipper;
 let localMonoNoteFlipper;
 
 
-function setGlobalVolumeOptions() {
-	browser.storage.local.set({
-		global: {
-			volumeMultiplierPercent: +globalVolumeOptions.inputs[0].value,
-			mono: globalMonoNoteFlipper.isMono
-		}
-	})
+function syncLocalVolumeOptions() {
+	if (!localVolumeOptions.enabled) {
+		localMonoNoteFlipper.mono = globalMonoNoteFlipper.mono;
+		localVolumeOptions.volume = globalVolumeOptions.volume;
+	}
 }
-function setLocalVolumeOptions() {
-	browser.storage.local.get(currentHostname).then(storage => browser.storage.local.set({
-		[currentHostname]: {
-			...storage?.[currentHostname],
-			enabled: localVolumeOptions.enabled,
-			volumeMultiplierPercent: +localVolumeOptions.inputs[0].value,
-			mono: localMonoNoteFlipper.isMono
-		}
-	}))
-}
-function refreshPopup() {
-	const RANGE_TOTAL_STEPS = 100;
+async function refreshPopup() {
+	const storage = await getStorage(currentHostname)
 
-	browser.storage.local.get().then(storage => {
-		const localIsAvailable = currentHostname && storage?.[currentHostname]?.enabled;
-		const hostnameGlobalFallback = localIsAvailable ? currentHostname : "global";
+	globalVolumeOptions.inputs.forEach(input => input.max = storage.options.volumeMultiplierPercentLimit)
+	localVolumeOptions.inputs.forEach(input => input.max = storage.options.volumeMultiplierPercentLimit)
 
-		globalVolumeOptions.enabled = !localIsAvailable;
-		localVolumeOptions.enabled = localIsAvailable;
+	globalVolumeOptions.volume = storage.global.volume;
+	globalMonoNoteFlipper.mono = storage.global.mono;
 
-		globalMonoNoteFlipper.isMono = storage.global.mono;
-		localMonoNoteFlipper.isMono = storage[hostnameGlobalFallback].mono;
+	let hideParent = el => el.parentElement.classList.add("hidden");
 
-		globalVolumeOptions.forEachInput(input => {
-			input.max = storage.options.volumeMultiplierPercentLimit;
-			input.value = storage.global.volumeMultiplierPercent;
-		})
+	// hide the local volume options if there is no hostname for some reason (e.g. about:blank)
+	if (!currentHostname) {
+		hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
+		return;
+	}
 
-		localVolumeOptions.forEachInput(input => {
-			input.max = storage.options.volumeMultiplierPercentLimit;
-			input.value = storage[hostnameGlobalFallback].volumeMultiplierPercent;
-		})
+	if (storage[currentHostname].excluded) {
+		EXCLUDED_HOSTNAME_MESSAGE.classList.remove("hidden");
+		hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
+		return;
+	}
 
-		GLOBAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(GLOBAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
-		LOCAL_VOLUME_MULTIPLIER_RANGE.step = Math.round(LOCAL_VOLUME_MULTIPLIER_RANGE.max / RANGE_TOTAL_STEPS);
+	globalVolumeOptions.enabled = !storage[currentHostname].enabled;
+	localVolumeOptions.enabled = storage[currentHostname].enabled;
+	localVolumeOptions.volume = storage[currentHostname].volume;
+	localMonoNoteFlipper.mono = storage[currentHostname].mono;
 
-		let hideParent = el => el.parentElement.classList.add("hidden");
+	HOSTNAME_TEXT.innerText = currentHostname;
 
-		if (storage?.[currentHostname]?.excluded ?? false) {
-			EXCLUDED_HOSTNAME_MESSAGE.classList.remove("hidden");
-			hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
-		}
-		else if (currentHostname) {
-			HOSTNAME_TEXT.innerText = currentHostname;
+	if (storage.options.showVolumeMultiplier == "both")
+	{
+		LOCAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = GLOBAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = (
+			Math.min(LOCAL_VOLUME_MULTIPLIER_RANGE.offsetWidth, GLOBAL_VOLUME_MULTIPLIER_RANGE.offsetWidth) + "px"
+		)
+	}
+	else if (storage.options.showVolumeMultiplier == "global") hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
+	else if (storage.options.showVolumeMultiplier == "local") hideParent(GLOBAL_VOLUME_MULTIPLIER_RANGE);
 
-			switch (storage.options.showVolumeMultiplier) {
-				case "both":
-					const minVolumeMultiplierRangeWidth = Math.min(LOCAL_VOLUME_MULTIPLIER_RANGE.offsetWidth, GLOBAL_VOLUME_MULTIPLIER_RANGE.offsetWidth);
-					LOCAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = GLOBAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = minVolumeMultiplierRangeWidth + "px";
-					break;
-				case "global": hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE); break;
-				case "local": hideParent(GLOBAL_VOLUME_MULTIPLIER_RANGE); break;
-			}
-
-			// prompt for media sources permissions
-			promptMediaSourcesHostnames({ includeSubdomains: storage.options.specifyPermissionSubdomains })
-		}
-		else {
-			// hide the local volume options if there is no hostname for some reason (e.g. about:blank)
-			hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
-		}
-	})
+	// prompt for media sources permissions
+	promptMediaSourcesHostnames(storage.options.specifyPermissionSubdomains)
 }
 
-async function promptMediaSourcesHostnames({ includeSubdomains }) {
+
+async function promptMediaSourcesHostnames(includeSubdomains) {
 	async function getMediaSourcesHostnames() {
 		let mediaSourcesResult = await browser.scripting.executeScript({
 			target: {tabId: currentTabId, allFrames: true},
@@ -185,19 +125,36 @@ async function promptMediaSourcesHostnames({ includeSubdomains }) {
 		return arr.filter((_, i) => mediaSourcesNeededBooleans[i])
 	}
 
+	function addPermissionToMediaSourcesList(mediaHostname)
+	{
+		const chkbox = document.createElement("input");
+		chkbox.type = "checkbox";
+		chkbox.checked = true;
+		chkbox.id = mediaHostname;
+		chkbox.name = mediaHostname;
+		chkbox.classList.add("media-source-checkbox");
+
+		const label = document.createElement("label");
+		label.innerText = mediaHostname;
+		label.htmlFor = mediaHostname;
+		label.classList.add("url");
+
+		const li = document.createElement("li");
+		li.appendChild(chkbox);
+		li.appendChild(label);
+		MEDIA_SOURCES_LIST.appendChild(li);
+	}
+
 	if (currentHostname) {
 		// get the sources hostnames of all the media elements in the page
 		const mediaSourcesHostnames = await getMediaSourcesHostnames();
-		console.log("mediaSourcesHostnames", mediaSourcesHostnames);
 
 		if (mediaSourcesHostnames.length > 0) {
 			// get the essential hostnames (no duplicates, no subdomains, etc.)
 			const mediaSourcesEssential = getEssentialHostnames([currentHostname, ...mediaSourcesHostnames], includeSubdomains);
-			console.log("mediaSourcesEssential", mediaSourcesEssential);
 
 			// get the hostnames that don't already have permissions
 			const mediaSourcesNeeded = await getNeededHostnames(mediaSourcesEssential);
-			console.log("mediaSourcesNeeded", mediaSourcesNeeded);
 
 			// if there are hostnames that need permissions, show the message
 			if (mediaSourcesNeeded.length > 0) {
@@ -215,70 +172,68 @@ async function promptMediaSourcesHostnames({ includeSubdomains }) {
 	}
 }
 
+function animate(element, name, seconds=1, mode="ease-in-out") {
+	element.style.animation = "none";
+	element.offsetHeight;
+	element.style.animation = `${name} ${seconds}s ${mode} 1`;
+}
 
-globalVolumeOptions = new VolumeOptions([GLOBAL_VOLUME_MULTIPLIER_COUNTER, GLOBAL_VOLUME_MULTIPLIER_RANGE], value => {
-	if (!localVolumeOptions.enabled) {
-		localVolumeOptions.forEachInput(input => input.value = value);
-	}
 
-	setGlobalVolumeOptions();
-}, {links: [FLIP_GLOBAL_SOUND_MODE]})
+const setGlobalOptions = properties => setStorage({ global: { ...properties } })
+const setLocalOptions = properties => setStorage({ [currentHostname]: { enabled: true, ...properties } })
 
-localVolumeOptions = new VolumeOptions([LOCAL_VOLUME_MULTIPLIER_COUNTER, LOCAL_VOLUME_MULTIPLIER_RANGE], value => {
-	localVolumeOptions.enabled = true;
-	globalVolumeOptions.enabled = false;
-
-	setLocalVolumeOptions();
-}, {links: [FLIP_LOCAL_SOUND_MODE, DELETE_LOCAL_VOLUME_OPTIONS]})
-
-globalMonoNoteFlipper = new NoteFlipper(FLIP_GLOBAL_SOUND_MODE, isMono => {
-	animate(FLIP_GLOBAL_SOUND_MODE.querySelector("img"), "bounce", 0.2);
-
-	if (!localVolumeOptions.enabled) {
-		localMonoNoteFlipper.isMono = isMono;
-	}
-
-	setGlobalVolumeOptions();
+globalVolumeOptions = new VolumeOptions([GLOBAL_VOLUME_MULTIPLIER_COUNTER, GLOBAL_VOLUME_MULTIPLIER_RANGE], () => {
+	syncLocalVolumeOptions();
+	setGlobalOptions({ volume: globalVolumeOptions.volume });
 })
 
-localMonoNoteFlipper = new NoteFlipper(FLIP_LOCAL_SOUND_MODE, () => {
+localVolumeOptions = new VolumeOptions([LOCAL_VOLUME_MULTIPLIER_COUNTER, LOCAL_VOLUME_MULTIPLIER_RANGE], () => {
+	globalVolumeOptions.enabled = false;
+	localVolumeOptions.enabled = true;
+	setLocalOptions({ volume: localVolumeOptions.volume })
+})
+
+globalMonoNoteFlipper = new VolumeMonoFlip(FLIP_GLOBAL_SOUND_MODE, () => {
+	animate(FLIP_GLOBAL_SOUND_MODE.querySelector("img"), "bounce", 0.2);
+
+	syncLocalVolumeOptions();
+	setGlobalOptions({ mono: globalMonoNoteFlipper.mono })
+})
+
+localMonoNoteFlipper = new VolumeMonoFlip(FLIP_LOCAL_SOUND_MODE, () => {
 	animate(FLIP_LOCAL_SOUND_MODE.querySelector("img"), "bounce", 0.2);
 
-	localVolumeOptions.enabled = true;
 	globalVolumeOptions.enabled = false;
+	localVolumeOptions.enabled = true;
 
-	setLocalVolumeOptions();
+	setLocalOptions({ mono: localMonoNoteFlipper.mono })
 })
 
 
 DELETE_LOCAL_VOLUME_OPTIONS.addEventListener("click", () => {
-	animate(DELETE_LOCAL_VOLUME_OPTIONS.querySelector("img"), "shake", 0.4);
+	if (localVolumeOptions.enabled) {
+		animate(DELETE_LOCAL_VOLUME_OPTIONS.querySelector("img"), "shake", 0.4);
 
-	localVolumeOptions.enabled = false;
-	globalVolumeOptions.enabled = true;
+		globalVolumeOptions.enabled = true;
+		localVolumeOptions.enabled = false;
 
-	localVolumeOptions.forEachInput(input => input.value = globalVolumeOptions.inputs[0].value);
-	localMonoNoteFlipper.isMono = globalMonoNoteFlipper.isMono;
-
-	setLocalVolumeOptions();
+		syncLocalVolumeOptions();
+		setLocalOptions({ enabled: localVolumeOptions.enabled })
+	}
 })
 
 RESTORE_GLOBAL_VOLUME_OPTIONS.addEventListener("click", () => {
 	animate(RESTORE_GLOBAL_VOLUME_OPTIONS.querySelector("img"), "bounce", 0.2);
 
-	globalVolumeOptions.forEachInput(input => input.value = 100);
-	globalMonoNoteFlipper.isMono = false;
+	globalVolumeOptions.volume = 100;
+	globalMonoNoteFlipper.mono = false;
 
-	if (!localVolumeOptions.enabled) {
-		localVolumeOptions.forEachInput(input => input.value = 100);
-		localMonoNoteFlipper.isMono = false;
-	}
-
-	setGlobalVolumeOptions();
+	syncLocalVolumeOptions();
+	setGlobalOptions({ volume: globalVolumeOptions.volume, mono: globalMonoNoteFlipper.mono })
 })
 
 
-ASK_PERMISSIONS_BUTTON.addEventListener("click", () => {
+ASK_PERMISSIONS_BUTTON.addEventListener("click", async () => {
 	let mediaSources = [];
 
 	for (let chkbox of document.getElementsByClassName("media-source-checkbox")) {
@@ -288,22 +243,14 @@ ASK_PERMISSIONS_BUTTON.addEventListener("click", () => {
 	}
 
 	if (mediaSources.length > 0) {
-		browser.permissions.request({ origins: mediaSources }).then(granted => {
-			if (granted) {
-				browser.tabs.reload(currentTabId);
-				window.close();
-			}
-		})
+		let granted = await browser.permissions.request({ origins: mediaSources })
+		if (granted) browser.tabs.reload(currentTabId);
 	}
 })
 
-ENABLE_ALL_PERMISSIONS_BUTTON.addEventListener("click", () => {
-	browser.permissions.request({ origins: ["<all_urls>"] }).then(granted => {
-		if (granted) {
-			browser.tabs.reload(currentTabId);
-			window.close();
-		}
-	})
+ENABLE_ALL_PERMISSIONS_BUTTON.addEventListener("click", async () => {
+	let granted = await browser.permissions.request({ origins: ["<all_urls>"] })
+	if (granted) browser.tabs.reload(currentTabId);
 })
 
 

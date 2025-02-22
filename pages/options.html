@@ -3,43 +3,45 @@
 	<head>
 		<meta charset="UTF-8">
 		<link rel="stylesheet" href="style.css">
-		<script src="../scripts/VolumeOptions.js"></script>
+		<script src="../scripts/utils.js"></script>
 		<script defer src="../scripts/options.js"></script>
 	</head>
 
 	<body>
-		<div class="container">
-			<div class="option">
-				<input type="number" id="volume-multiplier-limit-counter" min="0" step="1"/>
-				<span class="percent-sign">%</span>
+		<div class="option">
+			<input type="number" id="volume-multiplier-limit-counter" min="0" step="1"/>
+			<span class="percent-sign">%</span>
 
-				<input type="range" id="volume-multiplier-limit-range" name="volume-multiplier-limit-range" step="5"/>
-				<label for="volume-multiplier-limit-range" class="hide">Volume multiplier limit</label>
-			</div>
+			<input type="range" id="volume-multiplier-limit-range" name="volume-multiplier-limit-range" step="5"/>
+			<label for="volume-multiplier-limit-range" class="hide">Volume multiplier limit</label>
+		</div>
 
-			<div class="option">
-				<label for="show-volume-multiplier-select">Show only a specific volume multiplier (when possible):</label>
-				<select id="show-volume-multiplier-select" name="show-volume-multiplier-select">
-					<option value="both">Show both</option>
-					<option value="global">Show only global</option>
-					<option value="local">Show only local</option>
-				</select>
-			</div>
+		<div class="option">
+			<label for="show-volume-multiplier-select">Show only a specific volume multiplier (when possible):</label>
+			<select id="show-volume-multiplier-select" name="show-volume-multiplier-select">
+				<option value="both">Show both</option>
+				<option value="global">Show only global</option>
+				<option value="local">Show only local</option>
+			</select>
+		</div>
 
-			<div class="option">
-				<input type="checkbox" id="specify-permission-subdomain-checkbox" name="specify-permission-subdomain-checkbox"/>
-				<label for="specify-permission-subdomain-checkbox">Specify website subdomains in the permission prompt (when possible)</label>
-			</div>
+		<div class="option">
+			<input type="checkbox" id="specify-permission-subdomain-checkbox" name="specify-permission-subdomain-checkbox"/>
+			<label for="specify-permission-subdomain-checkbox">Specify website subdomains in the permission prompt (when possible)</label>
+		</div>
 
-			<div style="padding: 10px; font-size: 13px;">
-				<i>A few additional per-subdomain options can be viewed by right-clicking the extension icon while being on a webpage.</i>
-			</div>
+		<div class="option">
+			<input type="checkbox" id="apply-default-local-settings-checkbox" name="apply-default-local-settings-checkbox"/>
+			<label for="apply-default-local-settings-checkbox">Apply default local settings to fix some websites (recommended)</label>
+		</div>
 
-			<button id="more-information-button" class="button" style="margin: 5px; float: right;">More information...</button>
+		<div style="padding: 10px; font-size: 13px;">
+			<i>A few additional per-subdomain options can be viewed by right-clicking the extension icon while being on a webpage.</i>
 		</div>
 
 		<footer>
 			<button id="reset-storage-button" class="button">CLEAR ALL SETTINGS</button>
+			<button id="more-information-button" class="button">More information...</button>
 		</footer>
 	</body>
 </html>

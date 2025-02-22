@@ -1,7 +1,7 @@
 {
 	"manifest_version": 3,
 	"name": "Better Volume Booster",
-	"version": "1.13.0",
+	"version": "1.14.0",
 	"description": "Volume booster firefox extension that remembers your choices.",
 
 	"icons": {
@@ -18,14 +18,14 @@
 		"browser_style": false
 	},
 	"background": {
-		"scripts": ["scripts/background.js"]
+		"scripts": ["scripts/utils.js", "scripts/background.js"]
 	},
 	"content_scripts": [
 		{
 			"matches": [
 				"<all_urls>"
 			],
-			"js": ["scripts/content.js"],
+			"js": ["scripts/utils.js", "scripts/content.js"],
 			"run_at": "document_start",
 			"all_frames": true,
 			"match_about_blank": true

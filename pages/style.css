@@ -1,7 +1,5 @@
 html, body {
 	margin: 0;
-	display: flex;
-	flex-direction: column;
 	user-select: none;
 }
 body {
@@ -20,7 +18,10 @@ header {
 }
 
 footer {
-	margin-top: 20px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin: 20px 5px;
 }
 
 
@@ -66,9 +67,15 @@ input[type="range"] {
 	flex: 1 0 auto;
 	cursor: pointer;
 }
-input[type="range"].disabled {
+
+.disabled > input[type="number"],
+.disabled > input[type="range"],
+.disabled > .percent-sign {
 	filter: grayscale(100%);
 	opacity: 0.5;
+}
+.disabled > #delete-local-volume-multiplier > img {
+	cursor: default;
 }
 
 
@@ -124,10 +131,6 @@ input[type="range"].disabled {
 
 
 #reset-storage-button {
-	display: block;
-	margin-left: auto;
-	margin-right: auto;
-
 	padding: 5px;
 	background-color: rgb(146, 28, 28);
 	font-weight: bold;
@@ -175,7 +178,8 @@ a.quaver > img {
 a.beam > img {
 	content: url("../images/beam-32.png");
 }
-a.note.disabled > img {
+.disabled > a.note > img,
+.disabled > a.restore > img {
 	filter: invert(26%) sepia(6%) saturate(444%) hue-rotate(202deg) brightness(94%) contrast(85%);
 }
 
@@ -188,11 +192,6 @@ a.restore > img {
 
 	filter: invert(9%) sepia(83%) saturate(7456%) hue-rotate(14deg) brightness(95%) contrast(95%);
 }
-a.restore.disabled > img {
-	pointer-events: none;
-	filter: invert(26%) sepia(6%) saturate(444%) hue-rotate(202deg) brightness(94%) contrast(85%);
-}
-
 a.fake {
 	visibility: hidden;
 }
