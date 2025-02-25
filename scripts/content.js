@@ -82,7 +82,7 @@ function onNodeCreation(callback, {type, selector} = {}) {
 	let audio = null;
 
 	async function updateVolume() {
-		if (DEBUG) console.log(storage[hostname].volume, storage[hostname].mono);
+		if (DEBUG) console.log("Detected storage change");
 
 		if (audio) {
 			const storage = await getStorage(hostname)
@@ -113,7 +113,7 @@ function onNodeCreation(callback, {type, selector} = {}) {
 
 			audio.connectMediaElement(el);
 
-			if (el.readyState >= 1) {
+			if (el.readyState >= 1 && el.paused) {
 				el.load();
 				if (DEBUG) console.log("Media element was reloaded");
 			}
