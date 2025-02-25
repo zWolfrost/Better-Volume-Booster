@@ -190,6 +190,7 @@ globalVolumeOptions = new VolumeOptions([GLOBAL_VOLUME_MULTIPLIER_COUNTER, GLOBA
 localVolumeOptions = new VolumeOptions([LOCAL_VOLUME_MULTIPLIER_COUNTER, LOCAL_VOLUME_MULTIPLIER_RANGE], () => {
 	globalVolumeOptions.enabled = false;
 	localVolumeOptions.enabled = true;
+
 	setLocalOptions({ volume: localVolumeOptions.volume })
 })
 
@@ -218,7 +219,7 @@ DELETE_LOCAL_VOLUME_OPTIONS.addEventListener("click", () => {
 		localVolumeOptions.enabled = false;
 
 		syncLocalVolumeOptions();
-		setLocalOptions({ enabled: localVolumeOptions.enabled })
+		setLocalOptions({ enabled: localVolumeOptions.enabled, volume: undefined, mono: undefined })
 	}
 })
 
