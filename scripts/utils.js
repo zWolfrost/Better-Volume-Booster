@@ -4,12 +4,22 @@ async function getStorage(targetHostname=null) {
 	const GLOBAL_SETTINGS = {
 		options: {
 			volumeMultiplierPercentLimit: 500,
-			showVolumeMultiplier: "both",
+			showVolumeMultiplier: {
+				"global": true,
+				"local": true,
+				"session": false
+			},
 			specifyPermissionSubdomains: false,
 			applyDefaultLocalSettings: true
 		},
 
 		global: {
+			volume: 100,
+			mono: false
+		},
+
+		session: {
+			url: null,
 			volume: 100,
 			mono: false
 		}

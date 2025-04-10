@@ -85,8 +85,7 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Added default values to the per-subdomain options, for some websites.
 <br>- Changed extension's icon.
 
-- **v1.14.0** (TBD, additions subject to change):
+- **v1.14.0**:
+<br>- Added a "session" volume multiplier, for temporary volume changes.
 <br>- Added an option to disable having default values to the per-subdomain options.
 <br>- Fixed bug where the extension wouldn't remember the local TikTok volume options.
-<br>- Fixed bug where really fast-loading media elements would get muted.
-<br>- Made code more readable and maintainable.

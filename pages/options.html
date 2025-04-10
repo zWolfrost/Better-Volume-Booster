@@ -17,12 +17,23 @@
 		</div>
 
 		<div class="option">
-			<label for="show-volume-multiplier-select">Show only a specific volume multiplier (when possible):</label>
-			<select id="show-volume-multiplier-select" name="show-volume-multiplier-select">
-				<option value="both">Show both</option>
-				<option value="global">Show only global</option>
-				<option value="local">Show only local</option>
-			</select>
+			<fieldset>
+				<legend>Show only a specific volume multiplier (when possible):</legend>
+				<div>
+				  <input type="checkbox" class="show-volume-multiplier-checkbox" id="show-global-volume-multiplier-checkbox" value="global"/>
+				  <label for="show-global-volume-multiplier-checkbox">Global (All domains)</label>
+				</div>
+
+				<div>
+				  <input type="checkbox" class="show-volume-multiplier-checkbox" id="show-local-volume-multiplier-checkbox" value="local"/>
+				  <label for="show-local-volume-multiplier-checkbox">Local (Domain-specific)</label>
+				</div>
+
+				<div>
+				  <input type="checkbox" class="show-volume-multiplier-checkbox" id="show-session-volume-multiplier-checkbox" value="session"/>
+				  <label for="show-session-volume-multiplier-checkbox">Session (Url-specific, temporary)</label>
+				</div>
+			</fieldset>
 		</div>
 
 		<div class="option">

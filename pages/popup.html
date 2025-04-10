@@ -30,6 +30,17 @@
 
 			<label for="local-volume-multiplier-range"><label id="hostname-text" class="url">Local</label> volume</label>
 		</div>
+		<div class="option">
+			<a id="delete-session-volume-multiplier" class="restore"><img src="../images/trashcan-32.png" alt="Delete Session Volume Multiplier" width="16px" draggable="false"/></a>
+			<a id="flip-session-sound-mode" class="note beam"><img alt="Flip Session Sound Mode" width="16px" draggable="false"/></a>
+
+			<input type="number" id="session-volume-multiplier-counter" min="0" step="1"/>
+			<span class="percent-sign">%</span>
+
+			<input type="range" id="session-volume-multiplier-range" name="session-volume-multiplier-range" min="0" step="5"/>
+
+			<label for="session-volume-multiplier-range">Session volume</label>
+		</div>
 
 		<div id="media-sources-message" class="option message hidden">
 			<div>

@@ -1,8 +1,10 @@
 "use strict";
 
 // GETTING ACTUAL HOSTNAME (BYPASSING IFRAME'S)
-const url = (window.self === window.top) ? document.URL : document.referrer;
-const hostname = (url == "") ? "blank" : new URL(url).hostname;
+function getUrl() {
+	return (window.self === window.top) ? document.URL : document.referrer;
+}
+const hostname = (getUrl() == "") ? "blank" : new URL(getUrl()).hostname;
 
 const DEBUG = false && (hostname !== "blank");
 if (DEBUG) console.log(hostname);
@@ -68,7 +70,7 @@ function onNodeCreation(callback, {type, selector} = {}) {
 (async () => {
 	// SENDING DOMAIN TO BACKGROUND SCRIPT
 	if (hostname !== "blank") {
-		await browser.runtime.sendMessage({hostname: hostname});
+		await browser.runtime.sendMessage({action: "setupRequests", hostname: hostname});
 		if (DEBUG) console.log("Awaited background script");
 	}
 
@@ -82,17 +84,26 @@ function onNodeCreation(callback, {type, selector} = {}) {
 	let audio = null;
 
 	async function updateVolume() {
-		if (DEBUG) console.log("Detected storage change");
-
 		if (audio) {
-			const storage = await getStorage(hostname)
+			const storage = await getStorage(hostname);
+			const options = storage.session.url == getUrl() ? storage.session : storage[hostname];
 
-			audio.gain = storage[hostname].volume / 100;
-			audio.mono = storage[hostname].mono;
+			audio.gain = options.volume / 100;
+			audio.mono = options.mono;
 		}
 	}
 
-	browser.storage.local.onChanged.addListener(() => updateVolume());
+	browser.storage.local.onChanged.addListener(() => {
+		if (DEBUG) console.log("Detected storage change");
+		updateVolume()
+	});
+
+	browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+		if (request.action == "updateVolume") {
+			if (DEBUG) console.log("Detected url change");
+			updateVolume();
+		}
+	});
 
 
 	// WATCH FOR MEDIA ELEMENTS OR FINDING THEM IF THEY ALREADY EXIST
@@ -112,11 +123,6 @@ function onNodeCreation(callback, {type, selector} = {}) {
 			}
 
 			audio.connectMediaElement(el);
-
-			if (el.readyState >= 1 && el.paused) {
-				el.load();
-				if (DEBUG) console.log("Media element was reloaded");
-			}
 		}
 	}
 

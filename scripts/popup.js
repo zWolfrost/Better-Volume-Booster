@@ -5,10 +5,14 @@ const GLOBAL_VOLUME_MULTIPLIER_RANGE = document.getElementById("global-volume-mu
 const GLOBAL_VOLUME_MULTIPLIER_COUNTER = document.getElementById("global-volume-multiplier-counter");
 const LOCAL_VOLUME_MULTIPLIER_RANGE = document.getElementById("local-volume-multiplier-range");
 const LOCAL_VOLUME_MULTIPLIER_COUNTER = document.getElementById("local-volume-multiplier-counter");
+const SESSION_VOLUME_MULTIPLIER_RANGE = document.getElementById("session-volume-multiplier-range");
+const SESSION_VOLUME_MULTIPLIER_COUNTER = document.getElementById("session-volume-multiplier-counter");
 const FLIP_GLOBAL_SOUND_MODE = document.getElementById("flip-global-sound-mode");
 const FLIP_LOCAL_SOUND_MODE = document.getElementById("flip-local-sound-mode");
-const DELETE_LOCAL_VOLUME_OPTIONS = document.getElementById("delete-local-volume-multiplier");
+const FLIP_SESSION_SOUND_MODE = document.getElementById("flip-session-sound-mode");
 const RESTORE_GLOBAL_VOLUME_OPTIONS = document.getElementById("restore-global-volume-multiplier");
+const DELETE_LOCAL_VOLUME_OPTIONS = document.getElementById("delete-local-volume-multiplier");
+const DELETE_SESSION_VOLUME_OPTIONS = document.getElementById("delete-session-volume-multiplier");
 const MEDIA_SOURCES_MESSAGE = document.getElementById("media-sources-message");
 const MEDIA_SOURCES_LIST = document.getElementById("media-sources-list");
 const ASK_PERMISSIONS_BUTTON = document.getElementById("ask-permissions-button");
@@ -18,18 +22,27 @@ const EXCLUDED_HOSTNAME_MESSAGE = document.getElementById("excluded-hostname-mes
 
 
 let currentTabId;
+let currentUrl;
 let currentHostname;
 
 let globalVolumeOptions;
 let localVolumeOptions;
+let sessionVolumeOptions;
 let globalMonoNoteFlipper;
 let localMonoNoteFlipper;
+let sessionMonoNoteFlipper;
+
+let localVolumeOptionsWasEnabled = false;
 
 
-function syncLocalVolumeOptions() {
-	if (!localVolumeOptions.enabled) {
-		localMonoNoteFlipper.mono = globalMonoNoteFlipper.mono;
+function syncVolumeOptions() {
+	if (globalVolumeOptions.enabled) {
 		localVolumeOptions.volume = globalVolumeOptions.volume;
+		localMonoNoteFlipper.mono = globalMonoNoteFlipper.mono;
+	}
+	if (!sessionVolumeOptions.enabled) {
+		sessionVolumeOptions.volume = localVolumeOptions.volume;
+		sessionMonoNoteFlipper.mono = localMonoNoteFlipper.mono;
 	}
 }
 async function refreshPopup() {
@@ -37,6 +50,7 @@ async function refreshPopup() {
 
 	globalVolumeOptions.inputs.forEach(input => input.max = storage.options.volumeMultiplierPercentLimit)
 	localVolumeOptions.inputs.forEach(input => input.max = storage.options.volumeMultiplierPercentLimit)
+	sessionVolumeOptions.inputs.forEach(input => input.max = storage.options.volumeMultiplierPercentLimit)
 
 	globalVolumeOptions.volume = storage.global.volume;
 	globalMonoNoteFlipper.mono = storage.global.mono;
@@ -46,30 +60,45 @@ async function refreshPopup() {
 	// hide the local volume options if there is no hostname for some reason (e.g. about:blank)
 	if (!currentHostname) {
 		hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
+		hideParent(SESSION_VOLUME_MULTIPLIER_RANGE);
 		return;
 	}
 
 	if (storage[currentHostname].excluded) {
 		EXCLUDED_HOSTNAME_MESSAGE.classList.remove("hidden");
 		hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
+		hideParent(SESSION_VOLUME_MULTIPLIER_RANGE);
 		return;
 	}
 
 	globalVolumeOptions.enabled = !storage[currentHostname].enabled;
 	localVolumeOptions.enabled = storage[currentHostname].enabled;
+	localVolumeOptionsWasEnabled = localVolumeOptions.enabled;
 	localVolumeOptions.volume = storage[currentHostname].volume;
 	localMonoNoteFlipper.mono = storage[currentHostname].mono;
+	sessionVolumeOptions.enabled = false;
+	sessionVolumeOptions.volume = localVolumeOptions.volume;
+	sessionMonoNoteFlipper.mono = localMonoNoteFlipper.mono;
+
+	if (storage.session.url == currentUrl) {
+		globalVolumeOptions.enabled = false;
+		localVolumeOptions.enabled = false;
+		sessionVolumeOptions.enabled = true;
+		sessionVolumeOptions.volume = storage.session.volume;
+		sessionMonoNoteFlipper.mono = storage.session.mono;
+	}
 
 	HOSTNAME_TEXT.innerText = currentHostname;
 
-	if (storage.options.showVolumeMultiplier == "both")
-	{
-		LOCAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = GLOBAL_VOLUME_MULTIPLIER_RANGE.style.maxWidth = (
-			Math.min(LOCAL_VOLUME_MULTIPLIER_RANGE.offsetWidth, GLOBAL_VOLUME_MULTIPLIER_RANGE.offsetWidth) + "px"
-		)
-	}
-	else if (storage.options.showVolumeMultiplier == "global") hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
-	else if (storage.options.showVolumeMultiplier == "local") hideParent(GLOBAL_VOLUME_MULTIPLIER_RANGE);
+	if (!storage.options.showVolumeMultiplier["global"]) hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
+	if (!storage.options.showVolumeMultiplier["local"]) hideParent(GLOBAL_VOLUME_MULTIPLIER_RANGE);
+	if (!storage.options.showVolumeMultiplier["session"]) hideParent(SESSION_VOLUME_MULTIPLIER_RANGE);
+
+	const showedVolumeMultipliers = [
+		LOCAL_VOLUME_MULTIPLIER_RANGE, GLOBAL_VOLUME_MULTIPLIER_RANGE, SESSION_VOLUME_MULTIPLIER_RANGE
+	].filter(el => !el.parentElement.classList.contains("hidden"));
+	const maxWidth = Math.min(...showedVolumeMultipliers.map(el => el.offsetWidth));
+	showedVolumeMultipliers.forEach(el => el.style.maxWidth = `${maxWidth}px`);
 
 	// prompt for media sources permissions
 	promptMediaSourcesHostnames(storage.options.specifyPermissionSubdomains)
@@ -181,33 +210,64 @@ function animate(element, name, seconds=1, mode="ease-in-out") {
 
 const setGlobalOptions = properties => setStorage({ global: { ...properties } })
 const setLocalOptions = properties => setStorage({ [currentHostname]: { enabled: true, ...properties } })
+const setSessionOptions = properties => setStorage({ session: { url: currentUrl, ...properties } })
 
 globalVolumeOptions = new VolumeOptions([GLOBAL_VOLUME_MULTIPLIER_COUNTER, GLOBAL_VOLUME_MULTIPLIER_RANGE], () => {
-	syncLocalVolumeOptions();
+	syncVolumeOptions();
 	setGlobalOptions({ volume: globalVolumeOptions.volume });
 })
 
 localVolumeOptions = new VolumeOptions([LOCAL_VOLUME_MULTIPLIER_COUNTER, LOCAL_VOLUME_MULTIPLIER_RANGE], () => {
-	globalVolumeOptions.enabled = false;
-	localVolumeOptions.enabled = true;
+	localVolumeOptionsWasEnabled = true;
 
+	if (!sessionVolumeOptions.enabled) {
+		globalVolumeOptions.enabled = false;
+		localVolumeOptions.enabled = true;
+	}
+
+	syncVolumeOptions();
 	setLocalOptions({ volume: localVolumeOptions.volume })
+})
+
+sessionVolumeOptions = new VolumeOptions([SESSION_VOLUME_MULTIPLIER_COUNTER, SESSION_VOLUME_MULTIPLIER_RANGE], () => {
+	globalVolumeOptions.enabled = false;
+	localVolumeOptions.enabled = false;
+	sessionVolumeOptions.enabled = true;
+
+	syncVolumeOptions();
+	setSessionOptions({ volume: sessionVolumeOptions.volume })
 })
 
 globalMonoNoteFlipper = new VolumeMonoFlip(FLIP_GLOBAL_SOUND_MODE, () => {
 	animate(FLIP_GLOBAL_SOUND_MODE.querySelector("img"), "bounce", 0.2);
 
-	syncLocalVolumeOptions();
+	syncVolumeOptions();
 	setGlobalOptions({ mono: globalMonoNoteFlipper.mono })
 })
 
 localMonoNoteFlipper = new VolumeMonoFlip(FLIP_LOCAL_SOUND_MODE, () => {
 	animate(FLIP_LOCAL_SOUND_MODE.querySelector("img"), "bounce", 0.2);
 
-	globalVolumeOptions.enabled = false;
-	localVolumeOptions.enabled = true;
+	localVolumeOptionsWasEnabled = true;
 
+	if (!sessionVolumeOptions.enabled) {
+		globalVolumeOptions.enabled = false;
+		localVolumeOptions.enabled = true;
+	}
+
+	syncVolumeOptions();
 	setLocalOptions({ mono: localMonoNoteFlipper.mono })
+})
+
+sessionMonoNoteFlipper = new VolumeMonoFlip(FLIP_SESSION_SOUND_MODE, () => {
+	animate(FLIP_SESSION_SOUND_MODE.querySelector("img"), "bounce", 0.2);
+
+	globalVolumeOptions.enabled = false;
+	localVolumeOptions.enabled = false;
+	sessionVolumeOptions.enabled = true;
+
+	syncVolumeOptions();
+	setSessionOptions({ mono: sessionMonoNoteFlipper.mono })
 })
 
 
@@ -217,9 +277,24 @@ DELETE_LOCAL_VOLUME_OPTIONS.addEventListener("click", () => {
 
 		globalVolumeOptions.enabled = true;
 		localVolumeOptions.enabled = false;
+		localVolumeOptionsWasEnabled = false;
+		sessionVolumeOptions.enabled = false;
 
-		syncLocalVolumeOptions();
-		setLocalOptions({ enabled: localVolumeOptions.enabled, volume: undefined, mono: undefined })
+		syncVolumeOptions();
+		setLocalOptions({ enabled: false, volume: undefined, mono: undefined })
+	}
+})
+
+DELETE_SESSION_VOLUME_OPTIONS.addEventListener("click", () => {
+	if (sessionVolumeOptions.enabled) {
+		animate(DELETE_SESSION_VOLUME_OPTIONS.querySelector("img"), "shake", 0.4);
+
+		globalVolumeOptions.enabled = !localVolumeOptionsWasEnabled;
+		localVolumeOptions.enabled = localVolumeOptionsWasEnabled;
+		sessionVolumeOptions.enabled = false;
+
+		syncVolumeOptions();
+		setSessionOptions({ url: undefined, volume: undefined, mono: undefined })
 	}
 })
 
@@ -229,7 +304,7 @@ RESTORE_GLOBAL_VOLUME_OPTIONS.addEventListener("click", () => {
 	globalVolumeOptions.volume = 100;
 	globalMonoNoteFlipper.mono = false;
 
-	syncLocalVolumeOptions();
+	syncVolumeOptions();
 	setGlobalOptions({ volume: globalVolumeOptions.volume, mono: globalMonoNoteFlipper.mono })
 })
 
@@ -252,14 +327,17 @@ ASK_PERMISSIONS_BUTTON.addEventListener("click", async () => {
 ENABLE_ALL_PERMISSIONS_BUTTON.addEventListener("click", async () => {
 	let granted = await browser.permissions.request({ origins: ["<all_urls>"] })
 	if (granted) browser.tabs.reload(currentTabId);
-})
+});
 
 
-browser.tabs.query({active: true, currentWindow: true}, async tabs => {
+(async () => {
+	const tabs = await browser.tabs.query({active: true, currentWindow: true});
+
 	try {
 		currentTabId = tabs[0].id;
-		currentHostname = new URL(tabs[0].url).hostname;
+		currentUrl = tabs[0].url;
+		currentHostname = new URL(currentUrl).hostname;
 	} catch {}
 
 	refreshPopup();
-})
+})();
