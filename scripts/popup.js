@@ -304,7 +304,7 @@ DELETE_SESSION_VOLUME_OPTIONS.addEventListener("click", () => {
 })
 
 RESTORE_GLOBAL_VOLUME_OPTIONS.addEventListener("click", () => {
-	animate(RESTORE_GLOBAL_VOLUME_OPTIONS.querySelector("img"), "bounce", 0.2);
+	animate(RESTORE_GLOBAL_VOLUME_OPTIONS.querySelector("img"), "rotate", 0.4, "ease-out");
 
 	globalVolumeOptions.volume = 100;
 	globalMonoNoteFlipper.mono = false;

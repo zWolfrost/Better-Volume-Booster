@@ -68,14 +68,15 @@ input[type="range"] {
 	cursor: pointer;
 }
 
-.disabled > input[type="number"],
-.disabled > input[type="range"],
-.disabled > .percent-sign {
+.disabled input[type="number"],
+.disabled input[type="range"],
+.disabled label,
+.disabled span {
 	filter: grayscale(100%);
 	opacity: 0.5;
 }
-.disabled > #delete-local-volume-multiplier > img {
-	cursor: default;
+.disabled .restore {
+	cursor: default !important;
 }
 
 
@@ -137,6 +138,10 @@ input[type="range"] {
 }
 
 
+.volume-multiplier-counter {
+	margin-left: 4px;
+}
+
 
 .percent-sign {
 	position: relative;
@@ -171,7 +176,7 @@ a.note > img {
 	position: relative;
 	left: 4px;
 	top: 2px;
-	margin-right: 8px;
+	margin-right: 4px;
 
 	filter: invert(85%);
 }
@@ -194,6 +199,9 @@ a.restore > img {
 
 	filter: invert(9%) sepia(83%) saturate(7456%) hue-rotate(14deg) brightness(95%) contrast(95%);
 }
+a.restore > img[src*="restore"] {
+	top: 3px;
+}
 a.fake {
 	visibility: hidden;
 }
@@ -212,4 +220,8 @@ a.fake {
 	0% {transform: scale(1);}
 	50% {transform: scale(1.2);}
 	100% {transform: scale(1);}
+}
+@keyframes rotate {
+	0% {transform: rotate(0deg);}
+	100% {transform: rotate(360deg);}
 }
