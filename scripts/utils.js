@@ -1,7 +1,7 @@
 "use strict";
 
 async function getStorage(targetHostname=null) {
-	const GLOBAL_SETTINGS = {
+	const DEFAULT_GLOBAL_SETTINGS = {
 		options: {
 			volumeMultiplierPercentLimit: 500,
 			showVolumeMultiplier: {
@@ -9,6 +9,7 @@ async function getStorage(targetHostname=null) {
 				"local": true,
 				"session": false
 			},
+			showAudioChannelButtons: true,
 			specifyPermissionSubdomains: false,
 			applyDefaultLocalSettings: true
 		},
@@ -25,7 +26,7 @@ async function getStorage(targetHostname=null) {
 		}
 	}
 
-	const LOCAL_GENERAL_SETTINGS = {
+	const DEFAULT_LOCAL_GENERAL_SETTINGS = {
 		enabled: false,
 		volume: 100,
 		mono: false,
@@ -33,7 +34,7 @@ async function getStorage(targetHostname=null) {
 		sendCookiesInMediaRequests: false
 	}
 
-	const LOCAL_SPECIFIC_SETTINGS = {
+	const DEFAULT_LOCAL_SPECIFIC_SETTINGS = {
 		"www.tiktok.com": {
 			sendCookiesInMediaRequests: true
 		}
@@ -57,18 +58,18 @@ async function getStorage(targetHostname=null) {
 		}
 	}
 
-	for (let key in GLOBAL_SETTINGS) {
-		storage[key] = {...GLOBAL_SETTINGS[key], ...storage[key]}
+	for (let key in DEFAULT_GLOBAL_SETTINGS) {
+		storage[key] = {...DEFAULT_GLOBAL_SETTINGS[key], ...storage[key]}
 	}
 
 	if (storage.options.applyDefaultLocalSettings) {
-		for (let key in LOCAL_SPECIFIC_SETTINGS) {
-			storage[key] = {...LOCAL_SPECIFIC_SETTINGS[key], ...storage[key]}
+		for (let key in DEFAULT_LOCAL_SPECIFIC_SETTINGS) {
+			storage[key] = {...DEFAULT_LOCAL_SPECIFIC_SETTINGS[key], ...storage[key]}
 		}
 	}
 
 	if (targetHostname) {
-		const hostnameStorage = {...LOCAL_GENERAL_SETTINGS, ...storage[targetHostname]}
+		const hostnameStorage = {...DEFAULT_LOCAL_GENERAL_SETTINGS, ...storage[targetHostname]}
 
 		if (hostnameStorage.enabled) storage[targetHostname] = hostnameStorage;
 		else storage[targetHostname] = {...hostnameStorage, ...storage.global}

@@ -45,7 +45,7 @@ function syncVolumeOptions() {
 		sessionMonoNoteFlipper.mono = localMonoNoteFlipper.mono;
 	}
 }
-async function refreshPopup() {
+async function initPopup() {
 	const storage = await getStorage(currentHostname)
 
 	globalVolumeOptions.inputs.forEach(input => input.max = storage.options.volumeMultiplierPercentLimit)
@@ -55,7 +55,12 @@ async function refreshPopup() {
 	globalVolumeOptions.volume = storage.global.volume;
 	globalMonoNoteFlipper.mono = storage.global.mono;
 
-	let hideParent = el => el.parentElement.classList.add("hidden");
+	let hideElement = el => el.classList.add("hidden");
+	let hideParent = el => hideElement(el.parentElement);
+
+	if (!storage.options.showAudioChannelButtons) {
+		document.querySelectorAll(".note").forEach(el => hideElement(el));
+	}
 
 	// hide the local volume options if there is no hostname for some reason (e.g. about:blank)
 	if (!currentHostname) {
@@ -90,12 +95,12 @@ async function refreshPopup() {
 
 	HOSTNAME_TEXT.innerText = currentHostname;
 
-	if (!storage.options.showVolumeMultiplier["global"]) hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
-	if (!storage.options.showVolumeMultiplier["local"]) hideParent(GLOBAL_VOLUME_MULTIPLIER_RANGE);
+	if (!storage.options.showVolumeMultiplier["global"]) hideParent(GLOBAL_VOLUME_MULTIPLIER_RANGE);
+	if (!storage.options.showVolumeMultiplier["local"]) hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
 	if (!storage.options.showVolumeMultiplier["session"]) hideParent(SESSION_VOLUME_MULTIPLIER_RANGE);
 
 	const showedVolumeMultipliers = [
-		LOCAL_VOLUME_MULTIPLIER_RANGE, GLOBAL_VOLUME_MULTIPLIER_RANGE, SESSION_VOLUME_MULTIPLIER_RANGE
+		GLOBAL_VOLUME_MULTIPLIER_RANGE, LOCAL_VOLUME_MULTIPLIER_RANGE, SESSION_VOLUME_MULTIPLIER_RANGE
 	].filter(el => !el.parentElement.classList.contains("hidden"));
 	const maxWidth = Math.min(...showedVolumeMultipliers.map(el => el.offsetWidth));
 	showedVolumeMultipliers.forEach(el => el.style.maxWidth = `${maxWidth}px`);
@@ -339,5 +344,5 @@ ENABLE_ALL_PERMISSIONS_BUTTON.addEventListener("click", async () => {
 		currentHostname = new URL(currentUrl).hostname;
 	} catch {}
 
-	refreshPopup();
+	initPopup();
 })();

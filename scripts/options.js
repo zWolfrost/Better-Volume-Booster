@@ -6,6 +6,7 @@ const MAX_VOLUME_MULTIPLIER_LIMIT = 1000;
 const VOLUME_MULTIPLIER_LIMIT_RANGE = document.getElementById("volume-multiplier-limit-range");
 const VOLUME_MULTIPLIER_LIMIT_COUNTER = document.getElementById("volume-multiplier-limit-counter");
 const SHOW_VOLUME_MULTIPLIER_CHECKBOXES = Array.from(document.getElementsByClassName("show-volume-multiplier-checkbox"));
+const SHOW_AUDIO_CHANNEL_BUTTONS_CHECKBOX = document.getElementById("show-audio-channel-buttons-checkbox");
 const SPECIFY_PERMISSION_SUBDOMAINS_CHECKBOX = document.getElementById("specify-permission-subdomain-checkbox");
 const APPLY_DEFAULT_LOCAL_SETTINGS_CHECKBOX = document.getElementById("apply-default-local-settings-checkbox");
 const MORE_INFORMATION_BUTTON = document.getElementById("more-information-button");
@@ -21,6 +22,7 @@ const RESET_STORAGE_BUTTON = document.getElementById("reset-storage-button");
 	})
 
 	SHOW_VOLUME_MULTIPLIER_CHECKBOXES.forEach(chkbx => chkbx.checked = storage.options.showVolumeMultiplier[chkbx.value])
+	SHOW_AUDIO_CHANNEL_BUTTONS_CHECKBOX.checked = storage.options.showAudioChannelButtons;
 	SPECIFY_PERMISSION_SUBDOMAINS_CHECKBOX.checked = storage.options.specifyPermissionSubdomains;
 	APPLY_DEFAULT_LOCAL_SETTINGS_CHECKBOX.checked = storage.options.applyDefaultLocalSettings;
 })();
@@ -37,6 +39,7 @@ SHOW_VOLUME_MULTIPLIER_CHECKBOXES.forEach(chkbx => chkbx.addEventListener("chang
 	SHOW_VOLUME_MULTIPLIER_CHECKBOXES.forEach(curChkbx => options.showVolumeMultiplier[curChkbx.value] = curChkbx.checked)
 	setOptions(options)
 }))
+SHOW_AUDIO_CHANNEL_BUTTONS_CHECKBOX.addEventListener("change", e => setOptions({showAudioChannelButtons: e.target.checked}))
 SPECIFY_PERMISSION_SUBDOMAINS_CHECKBOX.addEventListener("change", e => setOptions({specifyPermissionSubdomains: e.target.checked}))
 APPLY_DEFAULT_LOCAL_SETTINGS_CHECKBOX.addEventListener("change", e => setOptions({applyDefaultLocalSettings: e.target.checked}))
 

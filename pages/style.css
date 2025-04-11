@@ -162,10 +162,13 @@ input[type="range"] {
 }
 
 
+a.note, a.restore {
+	cursor: pointer;
+}
+
 
 a.note > img {
 	position: relative;
-	cursor: pointer;
 	left: 4px;
 	top: 2px;
 	margin-right: 8px;
@@ -186,7 +189,6 @@ a.beam > img {
 
 a.restore > img {
 	position: relative;
-	cursor: pointer;
 	left: 3px;
 	top: 2px;
 

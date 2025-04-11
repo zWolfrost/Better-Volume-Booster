@@ -87,5 +87,6 @@ _Note that any version might include a number of stylistic changes, which are of
 
 - **v1.14.0**:
 <br>- Added a "session" volume multiplier, for temporary volume changes.
+<br>- Added "show stereo/mono buttons" option.
 <br>- Added an option to disable having default values to the per-subdomain options.
 <br>- Fixed bug where the extension wouldn't remember the local TikTok volume options.

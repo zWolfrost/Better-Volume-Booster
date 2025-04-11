@@ -12,7 +12,7 @@
 			<input type="number" id="volume-multiplier-limit-counter" min="0" step="1"/>
 			<span class="percent-sign">%</span>
 
-			<input type="range" id="volume-multiplier-limit-range" name="volume-multiplier-limit-range" step="5"/>
+			<input type="range" id="volume-multiplier-limit-range" step="5"/>
 			<label for="volume-multiplier-limit-range" class="hide">Volume multiplier limit</label>
 		</div>
 
@@ -37,12 +37,17 @@
 		</div>
 
 		<div class="option">
-			<input type="checkbox" id="specify-permission-subdomain-checkbox" name="specify-permission-subdomain-checkbox"/>
+			<input type="checkbox" id="show-audio-channel-buttons-checkbox"/>
+			<label for="show-audio-channel-buttons-checkbox">Show the stereo/mono buttons in the volume multipliers</label>
+		</div>
+
+		<div class="option">
+			<input type="checkbox" id="specify-permission-subdomain-checkbox"/>
 			<label for="specify-permission-subdomain-checkbox">Specify website subdomains in the permission prompt (when possible)</label>
 		</div>
 
 		<div class="option">
-			<input type="checkbox" id="apply-default-local-settings-checkbox" name="apply-default-local-settings-checkbox"/>
+			<input type="checkbox" id="apply-default-local-settings-checkbox"/>
 			<label for="apply-default-local-settings-checkbox">Apply default local settings to fix some websites (recommended)</label>
 		</div>
 
