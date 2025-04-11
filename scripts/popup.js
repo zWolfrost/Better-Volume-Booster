@@ -17,6 +17,7 @@ const MEDIA_SOURCES_MESSAGE = document.getElementById("media-sources-message");
 const MEDIA_SOURCES_LIST = document.getElementById("media-sources-list");
 const ASK_PERMISSIONS_BUTTON = document.getElementById("ask-permissions-button");
 const ENABLE_ALL_PERMISSIONS_BUTTON = document.getElementById("enable-all-permissions-button");
+const NO_VOLUME_MULTIPLIERS_SELECTED_MESSAGE = document.getElementById("no-volume-multipliers-selected-message");
 const NO_MEDIA_DETECTED_MESSAGE = document.getElementById("no-media-detected-message");
 const EXCLUDED_HOSTNAME_MESSAGE = document.getElementById("excluded-hostname-message");
 
@@ -55,11 +56,10 @@ async function initPopup() {
 	globalVolumeOptions.volume = storage.global.volume;
 	globalMonoNoteFlipper.mono = storage.global.mono;
 
-	let hideElement = el => el.classList.add("hidden");
-	let hideParent = el => hideElement(el.parentElement);
+	let hideParent = el => el.parentElement.classList.add("hidden");
 
 	if (!storage.options.showAudioChannelButtons) {
-		document.querySelectorAll(".note").forEach(el => hideElement(el));
+		document.querySelectorAll(".note").forEach(el => el.classList.add("hidden"));
 	}
 
 	// hide the local volume options if there is no hostname for some reason (e.g. about:blank)
@@ -99,9 +99,13 @@ async function initPopup() {
 	if (!storage.options.showVolumeMultiplier["local"]) hideParent(LOCAL_VOLUME_MULTIPLIER_RANGE);
 	if (!storage.options.showVolumeMultiplier["session"]) hideParent(SESSION_VOLUME_MULTIPLIER_RANGE);
 
-	const showedVolumeMultipliers = [
-		GLOBAL_VOLUME_MULTIPLIER_RANGE, LOCAL_VOLUME_MULTIPLIER_RANGE, SESSION_VOLUME_MULTIPLIER_RANGE
-	].filter(el => !el.parentElement.classList.contains("hidden"));
+	const showedVolumeMultipliers = Array.from(document.querySelectorAll(".option:not(.hidden) > .volume-multiplier-range"));
+
+	if (showedVolumeMultipliers.length == 0) {
+		NO_VOLUME_MULTIPLIERS_SELECTED_MESSAGE.classList.remove("hidden");
+		return;
+	}
+
 	const maxWidth = Math.min(...showedVolumeMultipliers.map(el => el.offsetWidth));
 	showedVolumeMultipliers.forEach(el => el.style.maxWidth = `${maxWidth}px`);
 
