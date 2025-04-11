@@ -41,10 +41,19 @@ async function getStorage(targetHostname=null) {
 
 	let storage = await browser.storage.local.get()
 
-	// backwards compatibility
-	for (let key in storage) {
-		if (storage[key].volumeMultiplierPercent) {
-			storage[key].volume ??= storage[key].volumeMultiplierPercent;
+	// backwards compatibility for v1.13
+	{
+		for (let key in storage) {
+			if (storage[key].volumeMultiplierPercent) {
+				storage[key].volume ??= storage[key].volumeMultiplierPercent;
+			}
+		}
+		if (storage.options && typeof storage.options.showVolumeMultiplier === "string") {
+			storage.options.showVolumeMultiplier = {
+				global: (storage.options.showVolumeMultiplier == "global") || (storage.options.showVolumeMultiplier == "both"),
+				local: (storage.options.showVolumeMultiplier == "local") || (storage.options.showVolumeMultiplier == "both"),
+				session: false
+			}
 		}
 	}
 

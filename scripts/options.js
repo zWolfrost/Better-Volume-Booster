@@ -43,7 +43,7 @@ APPLY_DEFAULT_LOCAL_SETTINGS_CHECKBOX.addEventListener("change", e => setOptions
 MORE_INFORMATION_BUTTON.addEventListener("click", () => {
 	alert(`Unfortunately the firefox extension API has some missing functions relative to chrome (probably for privacy's sake, so you can't just, for example, send all the audio coming from the browser to some 3rd party server).\n
 That's why most, if not all firefox audio booster extensions (including this one), don't work on websites that use javascript to play audio.\n
-That being said, this extension offers some workarounds to fix most websites, but they are not perfect. That's why the options get a lot technical, even though they are for a simple audio booster.\n
+That being said, this extension offers some workarounds to fix most websites, but they are not perfect. That's why some options get a bit technical, even though they are for a simple audio booster.\n
 If you have any questions about the options, feel free to open an issue on github and ask me.`)
 })
 
