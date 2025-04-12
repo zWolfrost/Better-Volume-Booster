@@ -33,11 +33,11 @@ let globalMonoNoteFlipper;
 let localMonoNoteFlipper;
 let sessionMonoNoteFlipper;
 
-let localVolumeOptionsWasEnabled = false;
+let localVolumeOptionsEnabledPreviously = false;
 
 
 function syncVolumeOptions() {
-	if (globalVolumeOptions.enabled) {
+	if (!localVolumeOptions.enabled && !localVolumeOptionsEnabledPreviously) {
 		localVolumeOptions.volume = globalVolumeOptions.volume;
 		localMonoNoteFlipper.mono = globalMonoNoteFlipper.mono;
 	}
@@ -78,7 +78,7 @@ async function initPopup() {
 
 	globalVolumeOptions.enabled = !storage[currentHostname].enabled;
 	localVolumeOptions.enabled = storage[currentHostname].enabled;
-	localVolumeOptionsWasEnabled = localVolumeOptions.enabled;
+	localVolumeOptionsEnabledPreviously = localVolumeOptions.enabled;
 	localVolumeOptions.volume = storage[currentHostname].volume;
 	localMonoNoteFlipper.mono = storage[currentHostname].mono;
 	sessionVolumeOptions.enabled = false;
@@ -217,17 +217,17 @@ function animate(element, name, seconds=1, mode="ease-in-out") {
 }
 
 
-const setGlobalOptions = properties => setStorage({ global: { ...properties } })
-const setLocalOptions = properties => setStorage({ [currentHostname]: { enabled: true, ...properties } })
-const setSessionOptions = properties => setStorage({ session: { url: currentUrl, ...properties } })
+const setGlobalOptions = (override={}) => setStorage({ global: { volume: globalVolumeOptions.volume, mono: globalMonoNoteFlipper.mono, ...override } })
+const setLocalOptions = (override={}) => setStorage({ [currentHostname]: { enabled: true, volume: localVolumeOptions.volume, mono: localMonoNoteFlipper.mono, ...override } })
+const setSessionOptions = (override={}) => setStorage({ session: { url: currentUrl, volume: sessionVolumeOptions.volume, mono: sessionMonoNoteFlipper.mono, ...override } })
 
 globalVolumeOptions = new VolumeOptions([GLOBAL_VOLUME_MULTIPLIER_COUNTER, GLOBAL_VOLUME_MULTIPLIER_RANGE], () => {
 	syncVolumeOptions();
-	setGlobalOptions({ volume: globalVolumeOptions.volume });
+	setGlobalOptions();
 })
 
 localVolumeOptions = new VolumeOptions([LOCAL_VOLUME_MULTIPLIER_COUNTER, LOCAL_VOLUME_MULTIPLIER_RANGE], () => {
-	localVolumeOptionsWasEnabled = true;
+	localVolumeOptionsEnabledPreviously = true;
 
 	if (!sessionVolumeOptions.enabled) {
 		globalVolumeOptions.enabled = false;
@@ -235,7 +235,7 @@ localVolumeOptions = new VolumeOptions([LOCAL_VOLUME_MULTIPLIER_COUNTER, LOCAL_V
 	}
 
 	syncVolumeOptions();
-	setLocalOptions({ volume: localVolumeOptions.volume })
+	setLocalOptions();
 })
 
 sessionVolumeOptions = new VolumeOptions([SESSION_VOLUME_MULTIPLIER_COUNTER, SESSION_VOLUME_MULTIPLIER_RANGE], () => {
@@ -244,20 +244,20 @@ sessionVolumeOptions = new VolumeOptions([SESSION_VOLUME_MULTIPLIER_COUNTER, SES
 	sessionVolumeOptions.enabled = true;
 
 	syncVolumeOptions();
-	setSessionOptions({ volume: sessionVolumeOptions.volume })
+	setSessionOptions();
 })
 
 globalMonoNoteFlipper = new VolumeMonoFlip(FLIP_GLOBAL_SOUND_MODE, () => {
 	animate(FLIP_GLOBAL_SOUND_MODE.querySelector("img"), "bounce", 0.2);
 
 	syncVolumeOptions();
-	setGlobalOptions({ mono: globalMonoNoteFlipper.mono })
+	setGlobalOptions();
 })
 
 localMonoNoteFlipper = new VolumeMonoFlip(FLIP_LOCAL_SOUND_MODE, () => {
 	animate(FLIP_LOCAL_SOUND_MODE.querySelector("img"), "bounce", 0.2);
 
-	localVolumeOptionsWasEnabled = true;
+	localVolumeOptionsEnabledPreviously = true;
 
 	if (!sessionVolumeOptions.enabled) {
 		globalVolumeOptions.enabled = false;
@@ -265,7 +265,7 @@ localMonoNoteFlipper = new VolumeMonoFlip(FLIP_LOCAL_SOUND_MODE, () => {
 	}
 
 	syncVolumeOptions();
-	setLocalOptions({ mono: localMonoNoteFlipper.mono })
+	setLocalOptions();
 })
 
 sessionMonoNoteFlipper = new VolumeMonoFlip(FLIP_SESSION_SOUND_MODE, () => {
@@ -276,7 +276,7 @@ sessionMonoNoteFlipper = new VolumeMonoFlip(FLIP_SESSION_SOUND_MODE, () => {
 	sessionVolumeOptions.enabled = true;
 
 	syncVolumeOptions();
-	setSessionOptions({ mono: sessionMonoNoteFlipper.mono })
+	setSessionOptions();
 })
 
 
@@ -286,11 +286,11 @@ DELETE_LOCAL_VOLUME_OPTIONS.addEventListener("click", () => {
 
 		globalVolumeOptions.enabled = true;
 		localVolumeOptions.enabled = false;
-		localVolumeOptionsWasEnabled = false;
+		localVolumeOptionsEnabledPreviously = false;
 		sessionVolumeOptions.enabled = false;
 
 		syncVolumeOptions();
-		setLocalOptions({ enabled: false, volume: undefined, mono: undefined })
+		setLocalOptions({ enabled: false, volume: undefined, mono: undefined });
 	}
 })
 
@@ -298,12 +298,12 @@ DELETE_SESSION_VOLUME_OPTIONS.addEventListener("click", () => {
 	if (sessionVolumeOptions.enabled) {
 		animate(DELETE_SESSION_VOLUME_OPTIONS.querySelector("img"), "shake", 0.4);
 
-		globalVolumeOptions.enabled = !localVolumeOptionsWasEnabled;
-		localVolumeOptions.enabled = localVolumeOptionsWasEnabled;
+		globalVolumeOptions.enabled = !localVolumeOptionsEnabledPreviously;
+		localVolumeOptions.enabled = localVolumeOptionsEnabledPreviously;
 		sessionVolumeOptions.enabled = false;
 
 		syncVolumeOptions();
-		setSessionOptions({ url: undefined, volume: undefined, mono: undefined })
+		setSessionOptions({ url: undefined, volume: undefined, mono: undefined });
 	}
 })
 
@@ -314,7 +314,7 @@ RESTORE_GLOBAL_VOLUME_OPTIONS.addEventListener("click", () => {
 	globalMonoNoteFlipper.mono = false;
 
 	syncVolumeOptions();
-	setGlobalOptions({ volume: globalVolumeOptions.volume, mono: globalMonoNoteFlipper.mono })
+	setGlobalOptions();
 })
 
 

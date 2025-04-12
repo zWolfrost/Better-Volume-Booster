@@ -90,3 +90,5 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Added "show stereo/mono buttons" option.
 <br>- Added an option to disable having default values to the per-subdomain options.
 <br>- Fixed bug where the extension wouldn't remember the local TikTok volume options.
+	- v1.14.1:
+	<br>- Fixed some bugs in volume multipliers priority logic.

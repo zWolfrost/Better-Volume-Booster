@@ -58,6 +58,15 @@ async function getStorage(targetHostname=null) {
 		}
 	}
 
+	// Delete undefined keys recursively
+	function deleteUndefinedKeys(obj) {
+		for (let key in obj) {
+			if (obj[key] === undefined) delete obj[key];
+			else if (typeof obj[key] === "object") deleteUndefinedKeys(obj[key]);
+		}
+	}
+	deleteUndefinedKeys(storage);
+
 	for (let key in DEFAULT_GLOBAL_SETTINGS) {
 		storage[key] = {...DEFAULT_GLOBAL_SETTINGS[key], ...storage[key]}
 	}
