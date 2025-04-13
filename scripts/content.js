@@ -117,6 +117,10 @@ function onNodeCreation(callback, {type, selector} = {}) {
 
 			el.crossOrigin = "anonymous";
 
+			if (el.paused) {
+				await new Promise(resolve => el.addEventListener("play", resolve, {once: true}));
+			}
+
 			if (!audio) {
 				audio = new AudioBooster();
 				updateVolume();
