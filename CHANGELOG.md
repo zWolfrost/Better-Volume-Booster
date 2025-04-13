@@ -92,3 +92,5 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Fixed bug where the extension wouldn't remember the local TikTok volume options.
 	- v1.14.1:
 	<br>- Fixed some bugs in volume multipliers priority logic.
+	- v1.14.2:
+	<br>- Rolled back a change to fix the Paramount+ player.
