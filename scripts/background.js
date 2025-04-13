@@ -1,6 +1,8 @@
 "use strict";
 
+const HOSTNAME_TITLE_NORMAL_ID = "hostname-title";
 const EXCLUDE_HOSTNAME_CHECKBOX_ID = "exclude-hostname"
+const RELOAD_MEDIA_ELEMENTS_CHECKBOX_ID = "reload-media-elements"
 const SEND_COOKIES_CHECKBOX_ID = "send-cookies"
 
 
@@ -12,16 +14,32 @@ browser.contextMenus.onShown.addListener(async (info, tab) => {
 	const storage = await getStorage(hostname);
 
 	await browser.contextMenus.create({
+		id: HOSTNAME_TITLE_NORMAL_ID,
+		title: `Settings for ${hostname}:`,
+		type: "normal",
+		contexts: ["action"],
+		enabled: false
+	})
+
+	await browser.contextMenus.create({
 		id: EXCLUDE_HOSTNAME_CHECKBOX_ID,
-		title: `Exclude "${hostname}" from audio boosting`,
+		title: "Exclude from audio boosting",
 		type: "checkbox",
 		contexts: ["action"],
 		checked: storage[hostname].excluded
 	});
 
 	await browser.contextMenus.create({
+		id: RELOAD_MEDIA_ELEMENTS_CHECKBOX_ID,
+		title: "Preemptively reload media elements",
+		type: "checkbox",
+		contexts: ["action"],
+		checked: storage[hostname].reloadMediaElements
+	});
+
+	await browser.contextMenus.create({
 		id: SEND_COOKIES_CHECKBOX_ID,
-		title: `Send cookies to "${hostname}" media requests`,
+		title: "Send cookies to media requests",
 		type: "checkbox",
 		contexts: ["action"],
 		checked: storage[hostname].sendCookiesInMediaRequests
@@ -37,20 +55,13 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 	const hostname = new URL(tab.url).hostname;
 	const storage = await getStorage(hostname);
 
-	let properties = {};
+	let propertyName = {
+		[EXCLUDE_HOSTNAME_CHECKBOX_ID]: "excluded",
+		[RELOAD_MEDIA_ELEMENTS_CHECKBOX_ID]: "reloadMediaElements",
+		[SEND_COOKIES_CHECKBOX_ID]: "sendCookiesInMediaRequests"
+	}[info.menuItemId]
 
-	switch (info.menuItemId) {
-		case SEND_COOKIES_CHECKBOX_ID:
-			properties = {sendCookiesInMediaRequests: !storage[hostname].sendCookiesInMediaRequests}
-			break;
-		case EXCLUDE_HOSTNAME_CHECKBOX_ID:
-			properties = {excluded: !storage[hostname].excluded}
-			break;
-		default:
-			return;
-	}
-
-	await setStorage({ [hostname]: { ...properties } });
+	await setStorage({ [hostname]: { [propertyName]: !storage[hostname][propertyName] } });
 
 	browser.tabs.reload(tab.id);
 });

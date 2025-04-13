@@ -94,3 +94,6 @@ _Note that any version might include a number of stylistic changes, which are of
 	<br>- Fixed some bugs in volume multipliers priority logic.
 	- v1.14.2:
 	<br>- Rolled back a change to fix the Paramount+ player.
+
+- **v1.15.0**:
+<br>- Added an hostname-specific option to preemptively reload media elements.
