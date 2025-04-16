@@ -69,15 +69,17 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 
 browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 	if (changeInfo.status === "complete" && tab.url) {
-		browser.tabs.sendMessage(tabId, {action: "updateVolume"});
+		browser.tabs.sendMessage(tabId, {action: "updateVolume", url: tab.url});
 	}
 });
 
 
 // DECLARATIVE NET REQUESTS RULES SETUP
-browser.runtime.onMessage.addListener(async msg => {
-	if (msg.action == "setupRequests") {
-		const hostname = msg.hostname;
+browser.runtime.onMessage.addListener(async (message, sender) => {
+	const url = sender.tab.url;
+	const hostname = new URL(url).hostname;
+
+	if (message.action == "setupRequests") {
 		const domain = hostname.split(".").slice(-2).join(".");
 
 		const storage = await getStorage(hostname);
@@ -137,4 +139,6 @@ browser.runtime.onMessage.addListener(async msg => {
 			});
 		}
 	}
+
+	return {url: url};
 });

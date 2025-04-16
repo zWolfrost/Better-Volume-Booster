@@ -1,13 +1,6 @@
 "use strict";
 
-// GETTING ACTUAL HOSTNAME (BYPASSING IFRAME'S)
-function getUrl() {
-	return (window.self === window.top) ? document.URL : document.referrer;
-}
-const hostname = (getUrl() == "") ? "blank" : new URL(getUrl()).hostname;
-
-const DEBUG = false && (hostname !== "blank");
-if (DEBUG) console.log(hostname);
+const DEBUG = false;
 
 
 class AudioBooster {
@@ -68,12 +61,10 @@ function onNodeCreation(callback, {type, selector} = {}) {
 
 
 (async () => {
-	// SENDING DOMAIN TO BACKGROUND SCRIPT
-	if (hostname !== "blank") {
-		await browser.runtime.sendMessage({action: "setupRequests", hostname: hostname});
-		if (DEBUG) console.log("Awaited background script");
-	}
-
+	// SENDING DOMAIN TO BACKGROUND SCRIPT + GETTING URL
+	let url = (await browser.runtime.sendMessage({action: "setupRequests"})).url;
+	const hostname = new URL(url).hostname;
+	if (DEBUG) console.log("Domain: " + hostname);
 
 	let initialStorage = await getStorage(hostname);
 
@@ -86,7 +77,7 @@ function onNodeCreation(callback, {type, selector} = {}) {
 	async function updateVolume() {
 		if (audio) {
 			const storage = await getStorage(hostname);
-			const options = storage.session.url == getUrl() ? storage.session : storage[hostname];
+			const options = storage.session.url == url ? storage.session : storage[hostname];
 
 			audio.gain = options.volume / 100;
 			audio.mono = options.mono;
@@ -98,9 +89,10 @@ function onNodeCreation(callback, {type, selector} = {}) {
 		updateVolume()
 	});
 
-	browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-		if (request.action == "updateVolume") {
-			if (DEBUG) console.log("Detected url change");
+	browser.runtime.onMessage.addListener(message => {
+		if (message.action == "updateVolume") {
+			url = message.url;
+			if (DEBUG) console.log("Detected url change: " + url);
 			updateVolume();
 		}
 	});

@@ -97,3 +97,4 @@ _Note that any version might include a number of stylistic changes, which are of
 
 - **v1.15.0**:
 <br>- Added an hostname-specific option to preemptively reload media elements.
+<br>- Fixed a bug where the local volume multiplier would not work.
