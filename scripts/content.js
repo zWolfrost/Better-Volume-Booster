@@ -19,10 +19,11 @@ class AudioBooster {
 	}
 
 	get gain() {
-		return this.gainNode.gain.value;
+		let gain = this.gainNode.gain.value;
+		return gain == -1 ? 0 : gain;
 	}
 	set gain(gain) {
-		this.gainNode.gain.value = gain;
+		this.gainNode.gain.value = gain == 0 ? -1 : gain;
 	}
 
 	get mono() {
