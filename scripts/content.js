@@ -134,4 +134,13 @@ function onNodeCreation(callback, {type, selector} = {}) {
 	const MEDIA_TAGS_SELECTOR = "video, audio";
 	onNodeCreation(onMediaElementCreation, {type: Node.ELEMENT_NODE, selector: MEDIA_TAGS_SELECTOR})
 	document.querySelectorAll(MEDIA_TAGS_SELECTOR).forEach(onMediaElementCreation);
+
+
+	// RESUME AUDIO CONTEXT ON FIRST USER INTERACTION
+	document.addEventListener("click", () => {
+		if (audio.audioCtx.state === "suspended") {
+			audio.audioCtx.resume();
+			if (DEBUG) console.log("Resumed AudioContext");
+		}
+	}, {once: true});
 })();
