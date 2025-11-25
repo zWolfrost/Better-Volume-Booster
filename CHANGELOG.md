@@ -100,4 +100,4 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Fixed a bug where the local volume multiplier would not work.
 	- v1.15.1:
 	<br>- Fixed extension breaking media elements that load very fast. May introduce regressions.
-	<br>- Fixed extension breaking media elements when autoplay is blocked.
+	<br>- Fixed extension breaking media elements when autoplay is disabled.
