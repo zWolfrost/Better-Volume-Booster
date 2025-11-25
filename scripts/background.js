@@ -2,7 +2,6 @@
 
 const HOSTNAME_TITLE_NORMAL_ID = "hostname-title";
 const EXCLUDE_HOSTNAME_CHECKBOX_ID = "exclude-hostname"
-const RELOAD_MEDIA_ELEMENTS_CHECKBOX_ID = "reload-media-elements"
 const SEND_COOKIES_CHECKBOX_ID = "send-cookies"
 
 
@@ -30,14 +29,6 @@ browser.contextMenus.onShown.addListener(async (info, tab) => {
 	});
 
 	await browser.contextMenus.create({
-		id: RELOAD_MEDIA_ELEMENTS_CHECKBOX_ID,
-		title: "Preemptively reload media elements",
-		type: "checkbox",
-		contexts: ["action"],
-		checked: storage[hostname].reloadMediaElements
-	});
-
-	await browser.contextMenus.create({
 		id: SEND_COOKIES_CHECKBOX_ID,
 		title: "Send cookies to media requests",
 		type: "checkbox",
@@ -57,11 +48,13 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
 
 	let propertyName = {
 		[EXCLUDE_HOSTNAME_CHECKBOX_ID]: "excluded",
-		[RELOAD_MEDIA_ELEMENTS_CHECKBOX_ID]: "reloadMediaElements",
 		[SEND_COOKIES_CHECKBOX_ID]: "sendCookiesInMediaRequests"
 	}[info.menuItemId]
 
 	await setStorage({ [hostname]: { [propertyName]: !storage[hostname][propertyName] } });
+
+	await DNRsetupCORS(await getStorage());
+	await DNRsetupCookies(hostname, await getStorage(hostname));
 
 	browser.tabs.reload(tab.id);
 });
@@ -78,67 +71,75 @@ browser.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
 browser.runtime.onMessage.addListener(async (message, sender) => {
 	const url = sender.tab.url;
 	const hostname = new URL(url).hostname;
+	const storage = await getStorage(hostname);
 
-	if (message.action == "setupRequests") {
-		const domain = hostname.split(".").slice(-2).join(".");
-
-		const storage = await getStorage(hostname);
-
-		if (!storage[hostname].excluded) {
-			await browser.declarativeNetRequest.updateDynamicRules({
-				removeRuleIds: [1],
-				addRules: [{
-					"id": 1,
-					"priority": 1,
-					"action": {
-						"type": "modifyHeaders",
-						"responseHeaders": [{
-							"header": "Access-Control-Allow-Origin",
-							"operation": "set",
-							"value": "*"
-						}]
-					},
-					"condition": {
-						"resourceTypes": ["media"]
-					}
-				}]
-			});
-		}
-		else {
-			await browser.declarativeNetRequest.updateDynamicRules({
-				removeRuleIds: [1]
-			});
-		}
-
-		if (!storage[hostname].excluded && storage[hostname].sendCookiesInMediaRequests) {
-			const cookies = await browser.cookies.getAll({domain: domain});
-			const cookieString = '"' + cookies.map(cookie => `${cookie.name}=${cookie.value}`).join("; ") + '"'
-
-			await browser.declarativeNetRequest.updateDynamicRules({
-				removeRuleIds: [2],
-				addRules: [{
-					"id": 2,
-					"priority": 1,
-					"action": {
-						"type": "modifyHeaders",
-						"requestHeaders": [{
-							"header": "Cookie",
-							"operation": "set",
-							"value": cookieString
-						}]
-					},
-					"condition": {
-						"resourceTypes": ["media"]
-					}
-				}]
-			});
-		}
-		else {
-			await browser.declarativeNetRequest.updateDynamicRules({
-				removeRuleIds: [2]
-			});
-		}
+	if (message.action == "updateRequests") {
+		await DNRsetupCookies(hostname, storage);
 	}
 
-	return {url: url};
+	return {url: url, storage: storage};
 });
+
+
+async function DNRsetupCORS(storage) {
+	const excludedHostnames = Object.keys(storage).filter(host => storage[host].excluded);
+
+	await browser.declarativeNetRequest.updateDynamicRules({
+		removeRuleIds: [1],
+		addRules: [{
+			"id": 1,
+			"priority": 1,
+			"action": {
+				"type": "modifyHeaders",
+				"responseHeaders": [{
+					"header": "Access-Control-Allow-Origin",
+					"operation": "set",
+					"value": "*"
+				}]
+			},
+			"condition": {
+				"resourceTypes": ["media"],
+				"excludedInitiatorDomains": excludedHostnames
+			}
+		}]
+	});
+
+	console.log("CORS DNR rules updated with excluded domains: ", excludedHostnames);
+}
+
+async function DNRsetupCookies(hostname, storage) {
+	if (!storage[hostname].excluded && storage[hostname].sendCookiesInMediaRequests) {
+		const domain = hostname.split(".").slice(-2).join(".");
+
+		const cookies = await browser.cookies.getAll({domain: domain});
+		const cookieString = '"' + cookies.map(cookie => `${cookie.name}=${cookie.value}`).join("; ") + '"'
+
+		await browser.declarativeNetRequest.updateDynamicRules({
+			removeRuleIds: [2],
+			addRules: [{
+				"id": 2,
+				"priority": 1,
+				"action": {
+					"type": "modifyHeaders",
+					"requestHeaders": [{
+						"header": "Cookie",
+						"operation": "set",
+						"value": cookieString
+					}]
+				},
+				"condition": {
+					"resourceTypes": ["media"]
+				}
+			}]
+		});
+
+		console.log("Cookies DNR rule added for domain: ", hostname);
+	}
+	else {
+		await browser.declarativeNetRequest.updateDynamicRules({
+			removeRuleIds: [2]
+		});
+	}
+}
+
+getStorage().then(DNRsetupCORS);

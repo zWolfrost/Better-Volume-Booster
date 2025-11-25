@@ -31,7 +31,6 @@ async function getStorage(targetHostname=null) {
 		volume: 100,
 		mono: false,
 		excluded: false,
-		reloadMediaElements: false,
 		sendCookiesInMediaRequests: false
 	}
 

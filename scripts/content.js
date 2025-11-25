@@ -19,11 +19,10 @@ class AudioBooster {
 	}
 
 	get gain() {
-		let gain = this.gainNode.gain.value;
-		return gain == -1 ? 0 : gain;
+		return this.gainNode.gain.value;
 	}
 	set gain(gain) {
-		this.gainNode.gain.value = gain == 0 ? -1 : gain;
+		this.gainNode.gain.value = gain;
 	}
 
 	get mono() {
@@ -63,13 +62,15 @@ function onNodeCreation(callback, {type, selector} = {}) {
 
 (async () => {
 	// SENDING DOMAIN TO BACKGROUND SCRIPT + GETTING URL
-	let url = (await browser.runtime.sendMessage({action: "setupRequests"})).url;
-	const hostname = new URL(url).hostname;
-	if (DEBUG) console.log("Domain: " + hostname);
+	let url, hostname, initialStorage;
 
-	let initialStorage = await getStorage(hostname);
+	let message = browser.runtime.sendMessage({action: "updateRequests"}).then(response => {
+		url = response.url;
+		hostname = new URL(url).hostname;
+		initialStorage = response.storage;
 
-	if (initialStorage[hostname].excluded) return;
+		if (DEBUG) console.log("Domain: " + hostname);
+	});
 
 
 	// SETTING UP STORAGE LISTENER TO UPDATE VOLUME MULTIPLIER
@@ -108,15 +109,18 @@ function onNodeCreation(callback, {type, selector} = {}) {
 
 			el.classList.add(BOOSTED_CLASSNAME);
 
+			el.preload = "none";
+
+			await message;
+
+			if (initialStorage[hostname].excluded) {
+				el.load();
+				return;
+			}
+
 			el.crossOrigin = "anonymous";
 
-			if (el.paused) {
-				await new Promise(resolve => el.addEventListener("play", resolve, {once: true}));
-			}
-
-			if (initialStorage[hostname].reloadMediaElements) {
-				el.load();
-			}
+			el.load();
 
 			if (!audio) {
 				audio = new AudioBooster();

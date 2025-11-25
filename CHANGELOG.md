@@ -99,4 +99,4 @@ _Note that any version might include a number of stylistic changes, which are of
 <br>- Added an hostname-specific option to preemptively reload media elements.
 <br>- Fixed a bug where the local volume multiplier would not work.
 	- v1.15.1:
-	<br>- Fixed media not actually muting when the volume multiplier is set to 0%.
+	<br>- Fixed extension breaking media elements that load very fast. May introduce regressions.
