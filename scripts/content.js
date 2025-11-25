@@ -63,11 +63,13 @@ function onNodeCreation(callback, {type, selector} = {}) {
 (async () => {
 	// SENDING DOMAIN TO BACKGROUND SCRIPT + GETTING URL
 	let url, hostname, initialStorage;
+	let messageIsResolved = false;
 
 	let message = browser.runtime.sendMessage({action: "updateRequests"}).then(response => {
 		url = response.url;
 		hostname = new URL(url).hostname;
 		initialStorage = response.storage;
+		messageIsResolved = true;
 
 		if (DEBUG) console.log("Domain: " + hostname);
 	});
@@ -109,18 +111,31 @@ function onNodeCreation(callback, {type, selector} = {}) {
 
 			el.classList.add(BOOSTED_CLASSNAME);
 
-			el.preload = "none";
+			if (messageIsResolved) {
+				if (DEBUG) console.log("Message already resolved, could cleanly bypass")
 
-			await message;
+				if (initialStorage[hostname].excluded) {
+					return;
+				}
 
-			if (initialStorage[hostname].excluded) {
-				el.load();
-				return;
+				el.crossOrigin = "anonymous";
 			}
+			else {
+				if (DEBUG) console.log("Message not yet resolved, had to reload media element")
 
-			el.crossOrigin = "anonymous";
+				el.preload = "metadata";
 
-			el.load();
+				await message;
+
+				if (initialStorage[hostname].excluded) {
+					el.load();
+					return;
+				}
+
+				el.crossOrigin = "anonymous";
+
+				el.load();
+			}
 
 			if (!audio) {
 				audio = new AudioBooster();
