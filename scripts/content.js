@@ -137,6 +137,10 @@ function onNodeCreation(callback, {type, selector} = {}) {
 				el.load();
 			}
 
+			if (el.paused) {
+				await new Promise(resolve => el.addEventListener("play", resolve, {once: true}));
+			}
+
 			if (!audio) {
 				audio = new AudioBooster();
 				updateVolume();
