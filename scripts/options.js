@@ -11,6 +11,8 @@ const SPECIFY_PERMISSION_SUBDOMAINS_CHECKBOX = document.getElementById("specify-
 const APPLY_DEFAULT_LOCAL_SETTINGS_CHECKBOX = document.getElementById("apply-default-local-settings-checkbox");
 const MORE_INFORMATION_BUTTON = document.getElementById("more-information-button");
 const RESET_STORAGE_BUTTON = document.getElementById("reset-storage-button");
+const CLEAR_SITE_DATA_BUTTON = document.getElementById("clear-site-data-button");
+const COOKIES_PERMISSION_STATUS = document.getElementById("cookies-permission-status");
 
 
 (async () => {
@@ -25,7 +27,22 @@ const RESET_STORAGE_BUTTON = document.getElementById("reset-storage-button");
 	SHOW_AUDIO_CHANNEL_BUTTONS_CHECKBOX.checked = storage.options.showAudioChannelButtons;
 	SPECIFY_PERMISSION_SUBDOMAINS_CHECKBOX.checked = storage.options.specifyPermissionSubdomains;
 	APPLY_DEFAULT_LOCAL_SETTINGS_CHECKBOX.checked = storage.options.applyDefaultLocalSettings;
+
+	await refreshCookiesPermissionStatus();
+
+	// opened from the background when a cookies-permission request couldn't run
+	if (location.hash == "#cookies-permission") {
+		alert("The optional \"cookies\" permission could not be requested from the context menu.\nYou can grant it from here by enabling \"Send cookies to media requests\" for a site via the toolbar icon's right-click menu; Firefox will then ask for the permission.");
+	}
 })();
+
+async function refreshCookiesPermissionStatus() {
+	if (!COOKIES_PERMISSION_STATUS) return;
+	const granted = await browser.permissions.contains({permissions: ["cookies"]});
+	COOKIES_PERMISSION_STATUS.textContent = granted ? "granted" : "not granted (the feature asks for it when you enable it per-site)";
+}
+browser.permissions.onAdded.addListener(refreshCookiesPermissionStatus);
+browser.permissions.onRemoved.addListener(refreshCookiesPermissionStatus);
 
 
 const setOptions = properties => setStorage({ options: { ...properties } })
@@ -50,9 +67,18 @@ That being said, this extension offers some workarounds to fix most websites, bu
 If you have any questions about the options, feel free to open an issue on github and ask me.`)
 })
 
+CLEAR_SITE_DATA_BUTTON.addEventListener("click", async () => {
+	if (confirm("Forget every per-site setting (volumes, exclusions, cookie exceptions)?\nGlobal options and the global volume are kept.")) {
+		const storage = await browser.storage.local.get();
+		const siteKeys = Object.keys(storage).filter(key => !RESERVED_KEYS.has(key));
+		if (siteKeys.length) await browser.storage.local.remove(siteKeys);
+	}
+})
+
 RESET_STORAGE_BUTTON.addEventListener("click", async () => {
 	if (confirm("Are you sure you want to clear all settings and reset them to default?")) {
 		await browser.storage.local.clear()
+		if (browser.storage.session) await browser.storage.session.clear().catch(() => {});
 		browser.runtime.reload()
 	}
 })
