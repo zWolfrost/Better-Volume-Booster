@@ -115,46 +115,23 @@ async function initPopup() {
 
 
 async function promptMediaSourcesHostnames(includeSubdomains) {
+	// No scripting permission needed: every frame's content script already
+	// reports the cross-origin media hosts it embeds to the background, and
+	// that in-memory list is what we display here. The content script may
+	// still be booting when the popup opens on a fresh page, so retry once.
 	async function getMediaSourcesHostnames() {
-		let mediaSourcesResult = await browser.scripting.executeScript({
-			target: {tabId: currentTabId, allFrames: true},
-			/* injectImmediately: true, */
-			func: () => {
-				let sourceHostnames = [];
-
-				const foundElements = document.querySelectorAll("video, audio, iframe");
-
-				for (let el of foundElements) {
-					try {
-						let hostname = new URL(new URL(el.currentSrc ?? el.src).origin).hostname;
-						sourceHostnames.push(hostname);
-					}
-					catch {}
-				}
-
-				return sourceHostnames;
-			}
-		})
-
-		return mediaSourcesResult.map(res => res.result).flat().filter(el => el);
-	}
-	function getEssentialHostnames(arr, includeSubdomains=true) {
-		if (!includeSubdomains) {
-			arr = arr.map(hostname => hostname.split(".").slice(-2).join("."));
+		const query = async () => {
+			const response = await browser.runtime.sendMessage({action: "getMediaSources", tabId: currentTabId}).catch(() => null);
+			return response?.hostnames ?? [];
+		};
+		let hostnames = await query();
+		if (!hostnames.length) {
+			await new Promise(resolve => setTimeout(resolve, 400));
+			hostnames = await query();
 		}
-
-		let set = new Set(arr);
-
-		for (let hostname of set) {
-			for (let hostname2 of set) {
-				if (hostname.includes(hostname2) && hostname !== hostname2) {
-					set.delete(hostname);
-				}
-			}
-		}
-
-		return Array.from(set);
+		return hostnames;
 	}
+	// getEssentialHostnames comes from utils.js (true subdomain logic)
 	async function getNeededHostnames(arr) {
 		let isGrantedHostname = hostname => browser.permissions.contains({ origins: [`*://*.${hostname}/*`] });
 
@@ -188,8 +165,9 @@ async function promptMediaSourcesHostnames(includeSubdomains) {
 		const mediaSourcesHostnames = await getMediaSourcesHostnames();
 
 		if (mediaSourcesHostnames.length > 0) {
-			// get the essential hostnames (no duplicates, no subdomains, etc.)
-			const mediaSourcesEssential = getEssentialHostnames([currentHostname, ...mediaSourcesHostnames], includeSubdomains);
+			// Only hosts that actually serve cross-origin media are offered:
+			// the extension never asks for more access than it needs.
+			const mediaSourcesEssential = getEssentialHostnames(mediaSourcesHostnames, includeSubdomains);
 
 			// get the hostnames that don't already have permissions
 			const mediaSourcesNeeded = await getNeededHostnames(mediaSourcesEssential);
@@ -204,7 +182,7 @@ async function promptMediaSourcesHostnames(includeSubdomains) {
 			}
 		}
 		else {
-			// if there are no media elements in the page, show the message
+			// if there is no cross-origin media in the page, show the message
 			NO_MEDIA_DETECTED_MESSAGE.classList.remove("hidden");
 		}
 	}
@@ -324,6 +302,11 @@ ASK_PERMISSIONS_BUTTON.addEventListener("click", async () => {
 	for (let chkbox of document.getElementsByClassName("media-source-checkbox")) {
 		if (chkbox.checked) {
 			mediaSources.push(`*://*.${chkbox.name}/*`);
+			// "*://*.example.com/*" does not match "example.com" itself, so
+			// bare registrable domains also get their exact-origin pattern.
+			if (registrableDomain(chkbox.name) === chkbox.name) {
+				mediaSources.push(`*://${chkbox.name}/*`);
+			}
 		}
 	}
 
@@ -334,6 +317,7 @@ ASK_PERMISSIONS_BUTTON.addEventListener("click", async () => {
 })
 
 ENABLE_ALL_PERMISSIONS_BUTTON.addEventListener("click", async () => {
+	if (!confirm("Grant the extension data access to ALL websites?\nOnly do this if you trust every site's media to be readable by this extension.")) return;
 	let granted = await browser.permissions.request({ origins: ["<all_urls>"] })
 	if (granted) browser.tabs.reload(currentTabId);
 });
