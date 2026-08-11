@@ -1,8 +1,8 @@
 {
 	"manifest_version": 3,
 	"name": "Better Volume Booster",
-	"version": "1.15.3",
-	"description": "Volume booster firefox extension that remembers your choices.",
+	"version": "1.23.0",
+	"description": "Volume booster firefox extension that remembers your choices. Privacy-focused: no telemetry, no external requests, minimal permissions, all data stays on your device",
 
 	"icons": {
 		"48": "images/icon-512.png",
@@ -18,37 +18,44 @@
 		"browser_style": false
 	},
 	"background": {
-		"scripts": ["scripts/utils.js", "scripts/background.js"]
+		"scripts": [
+			"scripts/utils.js",
+			"scripts/background.js"
+		]
 	},
 	"content_scripts": [
 		{
 			"matches": [
 				"<all_urls>"
 			],
-			"js": ["scripts/utils.js", "scripts/content.js"],
+			"js": [
+				"scripts/content.js"
+			],
 			"run_at": "document_start",
 			"all_frames": true,
 			"match_about_blank": true
 		}
 	],
-
 	"optional_permissions": [
-		"<all_urls>"
+		"<all_urls>",
+		"cookies"
 	],
 	"permissions": [
 		"declarativeNetRequestWithHostAccess",
 		"storage",
-		"scripting",
-		"cookies",
 		"contextMenus"
 	],
-
 	"browser_specific_settings": {
 		"gecko": {
 			"id": "VolumeBoosterWithoutDementia@zWolfrost.github.com",
 			"data_collection_permissions": {
-				"required": ["none"]
+				"required": [
+					"none"
+				]
 			}
 		}
+	},
+	"content_security_policy": {
+		"extension_pages": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'; worker-src 'none'; media-src 'none'; manifest-src 'none'; frame-src 'none'"
 	}
 }
